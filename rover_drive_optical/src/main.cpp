@@ -1,12 +1,33 @@
 #include <Arduino.h>
 #include "SPI.h"
+#include <../lib/Robojax-L298N-DC-Motor/Robojax_L298N_DC_motor.h>
 
+// motor defns
+// motor 1 settings
+#define CHA 0
+#define ENA 14//D10 // this pin must be PWM enabled pin if Arduino board is used
+#define IN1 15//D12
+#define IN2 22//D3
+// motor 2 settings
+#define IN3 17//D8
+#define IN4 16//D9
+#define ENB 4//D11 this pin must be PWM enabled pin if Arduino board is used
+#define CHB 1
+const int CCW = 2; // do not change
+const int CW  = 1; // do not change
+#define motor1 1 // do not change
+#define motor2 2 // do not change
+
+// for two motors without debug information // Watch video instruciton for this line: https://youtu.be/2JTMqURJTwg
+Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA,  IN3, IN4, ENB, CHB);
+
+// optical flow defns
 // these pins may be different on different boards
 
-#define PIN_SS        5
-#define PIN_MISO      19
-#define PIN_MOSI      23
-#define PIN_SCK       18
+#define PIN_SS        5//D7
+#define PIN_MISO      19//D5
+#define PIN_MOSI      23//D2
+#define PIN_SCK       18//D6
 
 #define PIN_MOUSECAM_RESET     35
 #define PIN_MOUSECAM_CS        5
@@ -52,7 +73,6 @@
 int total_x = 0;
 int total_y = 0;
 
-
 int total_x1 = 0;
 int total_y1 = 0;
 
@@ -65,6 +85,9 @@ int b=0;
 
 int distance_x=0;
 int distance_y=0;
+
+int offset_x = 0;
+int offset_y = 0;
 
 volatile byte movementflag=0;
 volatile int xydat[2];
@@ -99,6 +122,7 @@ int mousecam_init()
   digitalWrite(PIN_MOUSECAM_CS,HIGH);
 
   mousecam_reset();
+  return 1;
 }
 
 void mousecam_write_reg(int reg, int val)
@@ -141,7 +165,8 @@ void mousecam_read_motion(struct MD *p)
   p->dy =  SPI.transfer(0xff);
   p->squal =  SPI.transfer(0xff);
   p->shutter =  SPI.transfer(0xff)<<8;
-  p->shutter |=  SPI.transfer(0xff);
+  p->shutter |=  SPI.transfer
+  (0xff);
   p->max_pix =  SPI.transfer(0xff);
   digitalWrite(PIN_MOUSECAM_CS,HIGH);
   delayMicroseconds(5);
@@ -193,49 +218,10 @@ int mousecam_frame_capture(byte *pdata)
   return ret;
 }
 
-void setup()
-{
-  pinMode(PIN_SS,OUTPUT);
-  pinMode(PIN_MISO,INPUT);
-  pinMode(PIN_MOSI,OUTPUT);
-  pinMode(PIN_SCK,OUTPUT);
+//loop functions
 
-  SPI.begin();
-  SPI.setClockDivider(SPI_CLOCK_DIV32);
-  SPI.setDataMode(SPI_MODE3);
-  SPI.setBitOrder(MSBFIRST);
-
-  Serial.begin(9600);
-
-  if(mousecam_init()==-1)
-  {
-    Serial.println("Mouse cam failed to init");
-    while(1);
-  }
-}
-
-char asciiart(int k)
-{
-  static char foo[] = "WX86*3I>!;~:,`. ";
-  return foo[k>>4];
-}
-
-byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
-
-void loop()
-{
- #if 0
-/*
-    if(movementflag){
-
-    tdistance = tdistance + convTwosComp(xydat[0]);
-    Serial.println("Distance = " + String(tdistance));
-    movementflag=0;
-    delay(3);
-    }
-
-  */
-  // if enabled this section grabs frames and outputs them as ascii art
+void check_cumulative_dist() {
+  #if 0
 
   if(mousecam_frame_capture(frame)==0)
   {
@@ -292,7 +278,113 @@ Serial.println("Distance_x = " + String(total_x));
 Serial.println("Distance_y = " + String(total_y));
 Serial.print('\n');
 
-  delay(250);
 
   #endif
 }
+
+/*
+void angle_control(double theta_reqd) {
+  double arc_length = 2*PI*abs(theta_reqd)*0.17/360; //0.17 is radius between axle and sensor
+
+  if (theta_reqd < 0) {
+    while (){
+     //move motor anticlockwise
+    }
+  }
+  else {
+    while (){
+     //move motor clockwise
+    }
+  }
+}
+*/
+void dist_control(int dist_reqd) {
+  
+  if (dist_reqd > 0) {
+    while ((total_y - offset_y) < dist_reqd) {
+      //move motor forwards
+      robot.rotate(motor1, 70, CW);//run motor1 at 60% speed in CW direction
+      robot.rotate(motor2, 70, CCW);//run motor1 at 60% speed in CW direction
+      delay(100);
+      check_cumulative_dist();
+      int error_x = total_x - offset_x;
+      if (error_x != 0){
+          while (error_x != 0) {
+            if (error_x > 0) {
+              // move motors slightly left
+              break;
+            }
+            else {
+              // move motors slightly right
+              break;
+            }
+          }
+      }
+    }
+  }
+  else {
+    while ((total_y - offset_y) < abs(dist_reqd)) {
+      //move motor backwards
+      robot.rotate(motor1, 70, CCW);//run motor1 at 60% speed in CW direction
+      robot.rotate(motor2, 70, CW);//run motor1 at 60% speed in CW direction
+      check_cumulative_dist();
+      int error_x = total_x - offset_x;
+      if (error_x != 0){
+          while (error_x != 0) {
+            if (error_x > 0) {
+              // move motors slightly left
+            }
+            else {
+              // move motors slightly right
+            }
+          }
+      }
+    }
+  }
+  robot.brake(1);
+  robot.brake(2);
+ }
+
+void setup()
+{
+  pinMode(PIN_SS,OUTPUT);
+  pinMode(PIN_MISO,INPUT);
+  pinMode(PIN_MOSI,OUTPUT);
+  pinMode(PIN_SCK,OUTPUT);
+
+  SPI.begin();
+  SPI.setClockDivider(SPI_CLOCK_DIV32);
+  SPI.setDataMode(SPI_MODE3);
+  SPI.setBitOrder(MSBFIRST);
+
+  robot.begin();
+
+  Serial.begin(9600);
+
+  if(mousecam_init()==-1)
+  {
+    Serial.println("Mouse cam failed to init");
+    while(1);
+  }
+}
+
+char asciiart(int k)
+{
+  static char foo[] = "WX86*3I>!;~:,`. ";
+  return foo[k>>4];
+}
+
+byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
+
+void loop()
+{
+ 
+ check_cumulative_dist();
+ offset_x = total_x;
+ offset_y = total_y;
+ //angle_control(50); //degrees to rotate between -180 and +180
+ dist_control(20); //dist to travel (in cm)
+ delay(30000); //wait 30s
+ 
+}
+
