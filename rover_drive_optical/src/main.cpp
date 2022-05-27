@@ -83,6 +83,55 @@ void angle_control(double theta_reqd) {
   }
 }
 */
+int maxlimit(int max, int input){
+  int out;
+  if(input > max){
+    out = max;
+  }
+  else{
+    out = input;
+  }
+  return out;
+}
+
+void motorrotate(int speed,int motor_no){
+  if(speed>0){
+    robot.rotate(motor_no, speed, CCW);
+  }
+  else{
+    robot.rotate(motor_no,abs(speed),CW);
+  }
+}
+dist_error = dist_reqd -
+R_pid = R_pid_loop()
+leftmotorcontrol = maxlimit(100, R_pid + theta_pid);
+rightmotorcontrol = maxlimit(100, R_pid - theta_pid);
+
+motorrotate(leftmotorcontrol, motor1);
+motorrotate(rightmotorcontrol, motor2);
+
+float R_pid_loop(){
+  float dist_error = 0;
+  float prev_dist_error = 0;
+  float dist_derivative = dist_error - prev_dist_error;
+  float kp_dist = 0;
+  float kd_dist = 0;
+  float R_pid = 0;
+  R_pid = kp_dist * dist_error + kd_dist * dist_derivative;
+  R_pid = maxlimit(100,R_pid);
+  return R_pid;
+}
+
+float theta_pid_loop(){
+  float theta_error = 0;
+  float prev_theta_error = 0;
+  float theta_derivative = theta_error - prev_theta_error;
+  float kp_theta = 0;
+  float kd_theta = 0;
+  float theta_pid = 0;
+  theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
+  return theta_pid;
+}
 
 
 void dist_control(int dist_reqd)
