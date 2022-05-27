@@ -83,6 +83,8 @@ void angle_control(double theta_reqd) {
   }
 }
 */
+
+
 void dist_control(int dist_reqd)
 {
 
@@ -137,14 +139,14 @@ void dist_control(int dist_reqd)
             // move motors slightly left
             robot.rotate(motor1, 100, CW); // run motor1 at 60% speed in CW direction
             robot.rotate(motor2, 100, CW); // run motor1 at 60% speed in CW direction
-            delay(10);                      // change to desired amount of turning
+            delay(10);                     // change to desired amount of turning
             break;
           }
           else
           {
             robot.rotate(motor1, 100, CCW); // run motor1 at 60% speed in CW direction
             robot.rotate(motor2, 100, CCW); // run motor1 at 60% speed in CW direction
-            delay(10);                     // change to desired amount of turning
+            delay(10);                      // change to desired amount of turning
             break;
           }
         }
