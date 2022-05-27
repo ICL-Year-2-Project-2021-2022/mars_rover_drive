@@ -33,25 +33,12 @@ void check_cumulative_dist()
   int val = mousecam_read_reg(ADNS3080_PIXEL_SUM);
   MD md;
   mousecam_read_motion(&md);
-  for (int i = 0; i < md.squal / 4; i++)
-    Serial.print('*');
-  Serial.print(' ');
-  Serial.print((val * 100) / 351);
-  Serial.print(' ');
-  Serial.print(md.shutter);
-  Serial.print(" (");
-  Serial.print((int)md.dx);
-  Serial.print(',');
-  Serial.print((int)md.dy);
-  Serial.println(')');
-
-  // Serial.println(md.max_pix);
   delay(100);
 
   distance_x = md.dx; // convTwosComp(md.dx);
   distance_y = md.dy; // convTwosComp(md.dy);
 
-  total_x1 = total_x1 + distance_x;
+  total_x1 = total_x1 + distance_x;//
   total_y1 = total_y1 + distance_y;
 
   total_x = total_x1 / 157;
@@ -134,7 +121,7 @@ float theta_pid_loop(){
 }
 
 
-void dist_control(int dist_reqd)
+void motor_control(int dist_reqd, int theta_reqd)
 {
 
   if (dist_reqd > 0)
