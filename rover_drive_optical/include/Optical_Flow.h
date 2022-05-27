@@ -49,23 +49,30 @@
 
 #define ADNS3080_PRODUCT_ID_VAL 0x17
 
-int total_x = 0;
-int total_y = 0;
+int sensor_displacement = 5;
 
-int total_x1 = 0;
-int total_y1 = 0;
+int total_r = 0;
+int total_l = 0;
 
-int x = 0;
-int y = 0;
+int total_r1 = 0;
+int total_l1 = 0;
 
-int a = 0;
-int b = 0;
+int r = 0;
+int l = 0;
 
-int distance_x = 0;
-int distance_y = 0;
+int r = 0;
+int l = 0;
 
-int offset_x = 0;
-int offset_y = 0;
+int distance_r = 0;
+int distance_l = 0;
+
+int delta_r = 0;
+int delta_l = 0;
+
+int current_r = 0;
+int current_l = 0;
+
+float delta_theta = 0;
 
 volatile byte movementflag = 0;
 volatile int xydat[2];
