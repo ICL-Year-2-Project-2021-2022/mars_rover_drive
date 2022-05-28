@@ -35,19 +35,19 @@ void check_cumulative_dist()
   MD md;
   mousecam_read_motion(&md);
   delay(100);
-
+  // measured changes in r and l
   distance_r = md.dx; // convTwosComp(md.dx);
   distance_l = md.dy; // convTwosComp(md.dy);
-
+  // total distance (cumulative)
   total_r1 = total_r1 + distance_r;//
   total_l1 = total_l1 + distance_l;
-
+  // scaled total distance (change scaling constant)
   total_r = total_r1 / 157;
   total_l = total_l1 / 157;
-
+  // scaled change in distance
   delta_r = distance_r / 157;
   delta_l = distance_l /157;
-
+  // change in angle, approximation using the cos rule
   delta_theta = acos(1 - (pow(delta_l,2) + pow(delta_r,2)) / (2 * pow(sensor_displacement,2)));                              
 
 #endif
@@ -69,6 +69,7 @@ void angle_control(double theta_reqd) {
   }
 }
 */
+// limiting function
 int maxlimit(int max, int input){
   int out;
   if(input > max){
@@ -80,6 +81,7 @@ int maxlimit(int max, int input){
   return out;
 }
 
+// motor function (to remove need for CCW and CW -> -100 to 100)
 void motorrotate(int speed,int motor_no){
   if(speed>0){
     robot.rotate(motor_no, speed, CCW);
@@ -89,6 +91,7 @@ void motorrotate(int speed,int motor_no){
   }
 }
 
+// distance PD loop
 float R_pid_loop(float dist_error, float prev_dist_error){
   //float dist_error = 0;
   //float prev_dist_error = 0;
@@ -101,6 +104,7 @@ float R_pid_loop(float dist_error, float prev_dist_error){
   return R_pid;
 }
 
+// angle PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error){
   //float theta_error = 0;
   //float prev_theta_error = 0;
@@ -118,6 +122,7 @@ float theta_pid_loop(float theta_error, float prev_theta_error){
   //return previous and current errors? how?
 }*/
 
+// main motor control function
 void motor_control(int dist_reqd, int theta_reqd)
 {
   int current_dist_error = dist_reqd;
