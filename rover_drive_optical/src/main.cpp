@@ -170,6 +170,11 @@ void setup()
   }
 }
 
+void loop(){
+  motor_control(10,0); //move 10 units?
+  delay(3000);
+  motor_control(0,90); // probably need radians -> maybe we convert for the commands
+}
 /*void cumulative_loop()
 {
 
