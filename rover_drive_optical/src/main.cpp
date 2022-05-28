@@ -30,7 +30,6 @@ void check_cumulative_dist()
 
   // if enabled this section produces a bar graph of the surface quality that can be used to focus the camera
   // also drawn is the average pixel value 0-63 and the shutter speed and the motion dx,dy.
-
   int val = mousecam_read_reg(ADNS3080_PIXEL_SUM);
   MD md;
   mousecam_read_motion(&md);
@@ -46,10 +45,12 @@ void check_cumulative_dist()
   total_l = total_l1 / 157;
   // scaled change in distance
   delta_r = distance_r / 157;
+  Serial.println("Delta_r in cumulative fn "+String(delta_r));
   delta_l = distance_l /157;
   // change in angle, approximation using the cos rule
   delta_theta = acos(1 - (pow(delta_l,2) + pow(delta_r,2)) / (2 * pow(sensor_displacement,2)));                              
-
+  Serial.println("Distance_x = " + String(total_r));
+  Serial.println("Distance_y = " + String(total_l));
 #endif
 }
 
@@ -70,8 +71,8 @@ void angle_control(double theta_reqd) {
 }
 */
 // limiting function
-int maxlimit(int max, int input){
-  int out;
+float maxlimit(float max, float input){
+  float out;
   if(input > max){
     out = max;
   }
@@ -96,7 +97,7 @@ float R_pid_loop(float dist_error, float prev_dist_error){
   //float dist_error = 0;
   //float prev_dist_error = 0;
   float dist_derivative = dist_error - prev_dist_error;
-  float kp_dist = 0;
+  float kp_dist = 0.5;
   float kd_dist = 0;
   //float R_pid = 0;
   float R_pid = kp_dist * dist_error + kd_dist * dist_derivative;
@@ -123,26 +124,29 @@ float theta_pid_loop(float theta_error, float prev_theta_error){
 }*/
 
 // main motor control function
-void motor_control(int dist_reqd, int theta_reqd)
+void motor_control(float dist_reqd, float theta_reqd)
 {
-  int current_dist_error = dist_reqd;
-  int current_theta_error = theta_reqd;
-  while(){
+  float current_dist_error = dist_reqd;
+  float current_theta_error = theta_reqd;
+  while(pid_enable){
     check_cumulative_dist();
-    int prev_dist_error = current_dist_error;
-    int current_dist_error = current_dist_error - delta_r;
+    float prev_dist_error = current_dist_error;
+    current_dist_error = current_dist_error - delta_r;
+    Serial.println("Current distance error "+String(current_dist_error));
     
-    int prev_theta_error = current_theta_error;
-    int current_theta_error = current_theta_error - delta_theta;
+    float prev_theta_error = current_theta_error;
+    float current_theta_error = current_theta_error - delta_theta;
 
     float R_pid = R_pid_loop(current_dist_error, prev_dist_error);
     float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
+    Serial.println("R_pid "+String(R_pid));
 
-    int leftmotorcontrol = maxlimit(100, R_pid + theta_pid);
-    int rightmotorcontrol = maxlimit(100, R_pid - theta_pid);
+    float leftmotorcontrol = maxlimit(100, R_pid + theta_pid);
+    float rightmotorcontrol = maxlimit(100, R_pid - theta_pid);
 
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
+    delay(1000);
   }
 }
 
@@ -160,7 +164,7 @@ void setup()
 
   robot.begin();
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   if (mousecam_init() == -1)
   {
@@ -171,7 +175,7 @@ void setup()
 }
 
 void loop(){
-  motor_control(10,0); //move 10 units?
+  motor_control(100,0); //move 10 units?
   delay(3000);
   motor_control(0,90); // probably need radians -> maybe we convert for the commands
 }
