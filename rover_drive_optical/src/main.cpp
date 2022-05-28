@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <Optical_Flow.h>
 #include <Motor_Drive.h>
+#include <math.h>
 
 // loop functions
 
@@ -33,36 +34,21 @@ void check_cumulative_dist()
   int val = mousecam_read_reg(ADNS3080_PIXEL_SUM);
   MD md;
   mousecam_read_motion(&md);
-  for (int i = 0; i < md.squal / 4; i++)
-    Serial.print('*');
-  Serial.print(' ');
-  Serial.print((val * 100) / 351);
-  Serial.print(' ');
-  Serial.print(md.shutter);
-  Serial.print(" (");
-  Serial.print((int)md.dx);
-  Serial.print(',');
-  Serial.print((int)md.dy);
-  Serial.println(')');
-
-  // Serial.println(md.max_pix);
   delay(100);
-
-  distance_x = md.dx; // convTwosComp(md.dx);
-  distance_y = md.dy; // convTwosComp(md.dy);
-
-  total_x1 = total_x1 + distance_x;
-  total_y1 = total_y1 + distance_y;
-
-  total_x = total_x1 / 157;
-  total_y = total_y1 / 157;
-
-  Serial.print('\n');
-
-  Serial.println("Distance_x = " + String(total_x));
-
-  Serial.println("Distance_y = " + String(total_y));
-  Serial.print('\n');
+  // measured changes in r and l
+  distance_r = md.dx; // convTwosComp(md.dx);
+  distance_l = md.dy; // convTwosComp(md.dy);
+  // total distance (cumulative)
+  total_r1 = total_r1 + distance_r;//
+  total_l1 = total_l1 + distance_l;
+  // scaled total distance (change scaling constant)
+  total_r = total_r1 / 157;
+  total_l = total_l1 / 157;
+  // scaled change in distance
+  delta_r = distance_r / 157;
+  delta_l = distance_l /157;
+  // change in angle, approximation using the cos rule
+  delta_theta = acos(1 - (pow(delta_l,2) + pow(delta_r,2)) / (2 * pow(sensor_displacement,2)));                              
 
 #endif
 }
@@ -83,76 +69,81 @@ void angle_control(double theta_reqd) {
   }
 }
 */
-void dist_control(int dist_reqd)
-{
+// limiting function
+int maxlimit(int max, int input){
+  int out;
+  if(input > max){
+    out = max;
+  }
+  else{
+    out = input;
+  }
+  return out;
+}
 
-  if (dist_reqd > 0)
-  {
-    while ((total_y - offset_y) < dist_reqd)
-    {
-      // move motor forwards
-      robot.rotate(motor1, 100, CCW); // run motor1 at 60% speed in CW direction
-      robot.rotate(motor2, 100, CW);  // run motor1 at 60% speed in CW direction
-      delay(100);
-      check_cumulative_dist();
-      int error_x = total_x - offset_x;
-      if (error_x != 0)
-      {
-        while (error_x != 0)
-        {
-          if (error_x > 0)
-          {
-            // move motors slightly left
-            robot.rotate(motor1, 100, CCW); // run motor1 at 60% speed in CW direction
-            robot.rotate(motor2, 100, CCW); // run motor1 at 60% speed in CW direction
-            delay(10);                      // change to desired amount of turning
-            break;
-          }
-          else
-          {
-            robot.rotate(motor1, 100, CW); // run motor1 at 60% speed in CW direction
-            robot.rotate(motor2, 100, CW); // run motor1 at 60% speed in CW direction
-            delay(10);                     // change to desired amount of turning
-            break;
-          }
-        }
-      }
-    }
+// motor function (to remove need for CCW and CW -> -100 to 100)
+void motorrotate(int speed,int motor_no){
+  if(speed>0){
+    robot.rotate(motor_no, speed, CCW);
   }
-  else
-  {
-    while ((total_y - offset_y) < -abs(dist_reqd))
-    {
-      // move motor backwards
-      robot.rotate(motor1, 100, CW);  // run motor1 at 60% speed in CW direction
-      robot.rotate(motor2, 100, CCW); // run motor1 at 60% speed in CW direction
-      check_cumulative_dist();
-      int error_x = total_x - offset_x;
-      if (error_x != 0)
-      {
-        while (error_x != 0)
-        {
-          if (error_x > 0)
-          {
-            // move motors slightly left
-            robot.rotate(motor1, 100, CW); // run motor1 at 60% speed in CW direction
-            robot.rotate(motor2, 100, CW); // run motor1 at 60% speed in CW direction
-            delay(10);                      // change to desired amount of turning
-            break;
-          }
-          else
-          {
-            robot.rotate(motor1, 100, CCW); // run motor1 at 60% speed in CW direction
-            robot.rotate(motor2, 100, CCW); // run motor1 at 60% speed in CW direction
-            delay(10);                     // change to desired amount of turning
-            break;
-          }
-        }
-      }
-    }
+  else{
+    robot.rotate(motor_no,abs(speed),CW);
   }
-  robot.brake(1);
-  robot.brake(2);
+}
+
+// distance PD loop
+float R_pid_loop(float dist_error, float prev_dist_error){
+  //float dist_error = 0;
+  //float prev_dist_error = 0;
+  float dist_derivative = dist_error - prev_dist_error;
+  float kp_dist = 0;
+  float kd_dist = 0;
+  //float R_pid = 0;
+  float R_pid = kp_dist * dist_error + kd_dist * dist_derivative;
+  R_pid = maxlimit(100,R_pid);
+  return R_pid;
+}
+
+// angle PD loop
+float theta_pid_loop(float theta_error, float prev_theta_error){
+  //float theta_error = 0;
+  //float prev_theta_error = 0;
+  float theta_derivative = theta_error - prev_theta_error;
+  float kp_theta = 0;
+  float kd_theta = 0;
+  //float theta_pid = 0;
+  float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
+  return theta_pid;
+}
+
+/*float errors(float current_error, float previous_error, int delta){
+  previous_error = current_error;
+  current_error = current_error - delta;
+  //return previous and current errors? how?
+}*/
+
+// main motor control function
+void motor_control(int dist_reqd, int theta_reqd)
+{
+  int current_dist_error = dist_reqd;
+  int current_theta_error = theta_reqd;
+  while(){
+    check_cumulative_dist();
+    int prev_dist_error = current_dist_error;
+    int current_dist_error = current_dist_error - delta_r;
+    
+    int prev_theta_error = current_theta_error;
+    int current_theta_error = current_theta_error - delta_theta;
+
+    float R_pid = R_pid_loop(current_dist_error, prev_dist_error);
+    float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
+
+    int leftmotorcontrol = maxlimit(100, R_pid + theta_pid);
+    int rightmotorcontrol = maxlimit(100, R_pid - theta_pid);
+
+    motorrotate(leftmotorcontrol, motor1);
+    motorrotate(rightmotorcontrol, motor2);
+  }
 }
 
 void setup()
@@ -179,19 +170,24 @@ void setup()
   }
 }
 
-void loop()
+void loop(){
+  motor_control(10,0); //move 10 units?
+  delay(3000);
+  motor_control(0,90); // probably need radians -> maybe we convert for the commands
+}
+/*void cumulative_loop()
 {
 
   check_cumulative_dist();
-  offset_x = total_x;
-  offset_y = total_y;
+  current_r = total_r;
+  current_l = total_l;
   // angle_control(50); //degrees to rotate between -180 and +180
-  dist_control(20); // dist to travel (in cm)
-  delay(10000);
+  //dist_control(20); // dist to travel (in cm)
+  //delay(10000);
   check_cumulative_dist();
-  offset_x = total_x;
-  offset_y = total_y;
+  current_r = total_r;
+  current_l = total_l;
   // angle_control(50); //degrees to rotate between -180 and +180
-  dist_control(10); // dist to travel (in cm)
-  delay(10000);
-}
+  //dist_control(10); // dist to travel (in cm)
+ // delay(10000);
+}*/
