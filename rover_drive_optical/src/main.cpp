@@ -35,17 +35,16 @@ void check_cumulative_dist()
   mousecam_read_motion(&md);
   delay(100);
   // measured changes in r and l
-  distance_r = md.dx; // convTwosComp(md.dx);
-  distance_l = md.dy; // convTwosComp(md.dy);
+  distance_r = convTwosComp(md.dx);
+  distance_l = convTwosComp(md.dy);
   // total distance (cumulative)
-  total_r1 = total_r1 + distance_r;//
+  total_r1 = total_r1 + distance_r;
   total_l1 = total_l1 + distance_l;
   // scaled total distance (change scaling constant)
   total_r = total_r1 / 157;
   total_l = total_l1 / 157;
   // scaled change in distance
   delta_r = distance_r / 157;
-  Serial.println("Delta_r in cumulative fn "+String(delta_r));
   delta_l = distance_l /157;
   // change in angle, approximation using the cos rule
   delta_theta = acos(1 - (pow(delta_l,2) + pow(delta_r,2)) / (2 * pow(sensor_displacement,2)));                              
@@ -132,7 +131,6 @@ void motor_control(float dist_reqd, float theta_reqd)
     check_cumulative_dist();
     float prev_dist_error = current_dist_error;
     current_dist_error = current_dist_error - delta_r;
-    Serial.println("Current distance error "+String(current_dist_error));
     
     float prev_theta_error = current_theta_error;
     float current_theta_error = current_theta_error - delta_theta;
@@ -164,7 +162,7 @@ void setup()
 
   robot.begin();
 
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   if (mousecam_init() == -1)
   {
@@ -175,7 +173,7 @@ void setup()
 }
 
 void loop(){
-  motor_control(100,0); //move 10 units?
+  motor_control(10,0); //move 10 units?
   delay(3000);
   motor_control(0,90); // probably need radians -> maybe we convert for the commands
 }

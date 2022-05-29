@@ -1,4 +1,4 @@
-#include <../lib/Robojax-L298N-DC-Motor/Robojax_L298N_DC_motor.h>
+#include <Robojax_L298N_DC_motor.h>
 // motor defns
 // motor 1 settings
 #define CHA 0
@@ -16,4 +16,4 @@ const int CW = 1;  // do not change
 #define motor2 2   // do not change
 
 // for two motors without debug information // Watch video instruciton for this line: https://youtu.be/2JTMqURJTwg
-Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA, IN3, IN4, ENB, CHB);
+extern Robojax_L298N_DC_motor robot;

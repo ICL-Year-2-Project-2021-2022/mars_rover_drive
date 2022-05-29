@@ -225,7 +225,7 @@ byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
 
 void loop()
 {
- #if 1
+ #if 0
 /*
     if(movementflag){
 
@@ -263,21 +263,21 @@ void loop()
   int val = mousecam_read_reg(ADNS3080_PIXEL_SUM);
   MD md;
   mousecam_read_motion(&md);
-  for(int i=0; i<md.squal/4; i++)
-    Serial.print('*');
-  Serial.print(' ');
-  Serial.print((val*100)/351);
-  Serial.print(' ');
-  Serial.print(md.shutter); Serial.print(" (");
-  Serial.print((int)md.dx); Serial.print(',');
-  Serial.print((int)md.dy); Serial.println(')');
+  //for(int i=0; i<md.squal/4; i++)
+  //  Serial.print('*');
+  //Serial.print(' ');
+  //Serial.print((val*100)/351);
+  //Serial.print(' ');
+  //Serial.print(md.shutter); Serial.print(" (");
+  //Serial.print((int)md.dx); Serial.print(',');
+  //Serial.print((int)md.dy); Serial.println(')');
 
   // Serial.println(md.max_pix);
-  delay(100);
+  delay(10);
 
 
-    distance_x = md.dx; //convTwosComp(md.dx);
-    distance_y = md.dy; //convTwosComp(md.dy);
+    distance_x = convTwosComp(md.dx);
+    distance_y = convTwosComp(md.dy);
 
 total_x1 = total_x1 + distance_x;
 total_y1 = total_y1 + distance_y;
@@ -286,15 +286,21 @@ total_x = total_x1/157;
 total_y = total_y1/157;
 
 
-Serial.print('\n');
+//Serial.print('\n');
 
 
-Serial.println("Distance_x = " + String(total_x));
+//Serial.println("Distance_x = " + String(total_x));
+Serial.print(distance_x);
+Serial.print(",");
+//Serial.println("Distance_y = " + String(total_y));
+//Serial.print('\n');
+Serial.print(distance_y);
+Serial.print(",");
+Serial.print(total_x1);
+Serial.print(",");
+Serial.println(total_y1);
 
-Serial.println("Distance_y = " + String(total_y));
-Serial.print('\n');
-
-  delay(250);
+  delay(100);
 
   #endif
 }
