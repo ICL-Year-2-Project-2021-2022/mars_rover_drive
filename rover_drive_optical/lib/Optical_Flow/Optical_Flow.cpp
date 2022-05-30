@@ -18,10 +18,8 @@ int distance_l = 0;
 int delta_r = 0;
 int delta_l = 0;
 
-int current_r = 0;
-int current_l = 0;
-
 float delta_theta = 0;
+float total_theta = 0;
 
 // runs PID loop until false
 bool pid_enable = true;

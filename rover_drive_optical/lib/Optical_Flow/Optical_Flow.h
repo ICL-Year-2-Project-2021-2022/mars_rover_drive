@@ -9,8 +9,8 @@
 #define PIN_MOSI 23 // D2
 #define PIN_SCK 18  // D6
 
-#define PIN_MOUSECAM_RESET 35
-#define PIN_MOUSECAM_CS 5
+#define PIN_MOUSECAM_RESET 35 // A5
+#define PIN_MOUSECAM_CS 5     // D7
 
 #define ADNS3080_PIXELS_X 30
 #define ADNS3080_PIXELS_Y 30
@@ -67,10 +67,8 @@ extern int distance_l;
 extern int delta_r;
 extern int delta_l;
 
-extern int current_r;
-extern int current_l;
-
 extern float delta_theta;
+extern float total_theta;
 
 // runs PID loop until false
 extern bool pid_enable;

@@ -90,18 +90,6 @@ void mousecam_reset()
   delay(35); // 35ms from reset to functional
 }
 
-
-int mousecam_init()
-{
-  pinMode(PIN_MOUSECAM_RESET,OUTPUT);
-  pinMode(PIN_MOUSECAM_CS,OUTPUT);
-
-  digitalWrite(PIN_MOUSECAM_CS,HIGH);
-
-  mousecam_reset();
-  return 1;
-}
-
 void mousecam_write_reg(int reg, int val)
 {
   digitalWrite(PIN_MOUSECAM_CS, LOW);
@@ -120,6 +108,23 @@ int mousecam_read_reg(int reg)
   digitalWrite(PIN_MOUSECAM_CS,HIGH);
   delayMicroseconds(1);
   return ret;
+}
+
+int mousecam_init()
+{
+  pinMode(PIN_MOUSECAM_RESET,OUTPUT);
+  pinMode(PIN_MOUSECAM_CS,OUTPUT);
+
+  digitalWrite(PIN_MOUSECAM_CS,HIGH);
+
+  // change resolution
+  /*uint8_t regVal = mousecam_read_reg(ADNS3080_CONFIGURATION_BITS);
+  regVal |= 0x10;
+  delayMicroseconds(50);
+  mousecam_write_reg(ADNS3080_CONFIGURATION_BITS, (int)regVal);*/
+
+  mousecam_reset();
+  return 1;
 }
 
 struct MD
@@ -287,8 +292,8 @@ total_y = total_y1/157;
 
 
 //Serial.print('\n');
-
-
+Serial.print(md.squal,BIN); //try printf
+Serial.print(",");
 //Serial.println("Distance_x = " + String(total_x));
 Serial.print(distance_x);
 Serial.print(",");

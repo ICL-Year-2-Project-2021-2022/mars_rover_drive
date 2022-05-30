@@ -13,7 +13,7 @@ baud = 9600                     # Must match Arduino baud rate
 timeout = 5                       # Seconds
 filename = "../data_optical/testfile_" + str(datetime.datetime.now().strftime("%y_%m_%d_%H_%M_%S_%p")) + ".csv"
 max_num_readings = 32000
-header_list = ["Epoch_Seconds","Delta_X","Delta_Y","Total_X","Total_Y"]
+header_list = ["Epoch_Seconds","Squal","Delta_X","Delta_Y","Total_X","Total_Y"]
  
  
  
@@ -44,8 +44,10 @@ def read_serial_data_and_clean(serial):
         if serial_line == '':
             timeout_reached = True
         else:
-            line_data = serial_line.decode('utf8').split(",")
-            line_data = [time.time()] + [float(element) for element in line_data if is_number(element)] # Convert strings to float
+            line_data = serial_line.decode(encoding='UTF-8').splitlines()[0].split(",") 
+            line_data = [time.time()] + [str(element) for element in line_data]
+            line_data[1] = int(line_data[1], 2)
+            print(line_data[1])
             if len(line_data) >= 2:
                 clean_data.append(line_data)
                 
