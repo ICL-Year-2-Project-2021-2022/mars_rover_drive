@@ -72,9 +72,6 @@ extern float delta_l;
 extern float delta_theta;
 extern float total_theta;
 
-// runs PID loop until false
-extern bool pid_enable;
-
 extern volatile byte movementflag;
 extern volatile int xydat[2];
 
