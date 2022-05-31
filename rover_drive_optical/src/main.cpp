@@ -32,20 +32,20 @@ void check_cumulative_dist()
   mousecam_read_motion(&md);
   delay(100);
   // measured changes in r and l
-  distance_r = convTwosComp(md.dx);
-  distance_l = convTwosComp(md.dy);
+  distance_r_au = convTwosComp(md.dx);
+  distance_l_au = convTwosComp(md.dy);
+  // convert from measured changes in r and l 
+  distance_r_mm = convertDistanceToMM(distance_r_au);
+  distance_l_mm = convertDistanceToMM(distance_l_au);
   // total distance (cumulative)
-  total_r1 = total_r1 + distance_r;
-  total_l1 = total_l1 + distance_l;
-  // scaled total distance (change scaling constant)
-  total_r = total_r1 / 157;
-  total_l = total_l1 / 157;
+  total_r = total_r + distance_r_mm;
+  total_l = total_l + distance_l_mm;
   // scaled change in distance
-  delta_r = distance_r / 157;
-  delta_l = distance_l / 157;
+  delta_r = distance_r_mm;
+  delta_l = distance_l_mm;
   // change in angle, approximation using the cos rule
   float reference_theta = acos(1 - (pow(delta_l,2) + pow(delta_r,2)) / (2 * pow(sensor_displacement,2)));
-  delta_theta = (delta_l > 0) ? reference_theta : -reference_theta; 
+  delta_theta = (delta_l > 0) ? reference_theta : - reference_theta; 
   // total theta (cumulative)                           
   total_theta = total_theta + delta_theta;
   
@@ -179,8 +179,8 @@ void setup()
 
 void loop(){
   motor_control(10,0); //move 10 units?
-  delay(3000);
-  motor_control(0,90); // probably need radians -> maybe we convert for the commands
+  //delay(3000);
+  //motor_control(0,90); // probably need radians -> maybe we convert for the commands
 }
 /*void cumulative_loop()
 {

@@ -1,8 +1,5 @@
 #include <Optical_Flow.h>
 
-// perpendicular distance from sensor to axis of rotation
-float sensor_displacement = 5;
-
 float total_r = 0;
 float total_l = 0;
 
@@ -12,8 +9,11 @@ float total_l1 = 0;
 float r = 0;
 float l = 0;
 
-float distance_r = 0;
-float distance_l = 0;
+int distance_r_au;
+int distance_l_au;
+
+float distance_r_mm;
+float distance_l_mm;
 
 float delta_r = 0;
 float delta_l = 0;
@@ -37,6 +37,12 @@ int convTwosComp(int b)
     b = -1 * ((b ^ 0xff) + 1);
   }
   return b;
+}
+
+// converts arbitrary values from sensor to mm using constant conversion factor
+float convertDistanceToMM(int x)
+{
+  return x / au_2_mm;
 }
 
 void mousecam_reset()

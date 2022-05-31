@@ -47,22 +47,24 @@
 #define ADNS3080_MOTION_BURST 0x50
 #define ADNS3080_SROM_LOAD 0x60
 
-#define ADNS3080_PRODUCT_ID_VAL 0x17
+#define ADNS3080_PRODUCT_ID_VAL 0x17\
+
+const float au_2_mm = 4.55;
 
 // perpendicular distance from sensor to axis of rotation
-extern float sensor_displacement;
+const int sensor_displacement = 127;
 
 extern float total_r;
 extern float total_l;
 
-extern float total_r1;
-extern float total_l1;
-
 extern float r;
 extern float l;
 
-extern float distance_r;
-extern float distance_l;
+extern int distance_r_au;
+extern int distance_l_au;
+
+extern float distance_r_mm;
+extern float distance_l_mm;
 
 extern float delta_r;
 extern float delta_l;
@@ -79,6 +81,8 @@ extern volatile int xydat[2];
 extern int tdistance;
 
 int convTwosComp(int b);
+
+float convertDistanceToMM(int x);
 
 void mousecam_reset();
 
