@@ -38,23 +38,21 @@ void check_cumulative_dist()
   total_r1 = total_r1 + distance_r;
   total_l1 = total_l1 + distance_l;
   // scaled total distance (change scaling constant)
-  total_r = total_r1 / 15;
-  total_l = total_l1 / 15;
+  total_r = total_r1 / 157;
+  total_l = total_l1 / 157;
   // scaled change in distance
-  delta_r = distance_r / 15;
-  delta_l = distance_l / 15;
+  delta_r = distance_r / 157;
+  delta_l = distance_l / 157;
   // change in angle, approximation using the cos rule
   float reference_theta = acos(1 - (pow(delta_l,2) + pow(delta_r,2)) / (2 * pow(sensor_displacement,2)));
   delta_theta = (delta_l > 0) ? reference_theta : -reference_theta; 
   // total theta (cumulative)                           
   total_theta = total_theta + delta_theta;
   
-  Serial.println("Distance_r(x) = " + String(total_r));
-  Serial.println("Distance_l(y) = " + String(total_l));
-  Serial.println("Thetha = "+String(delta_theta));
-  Serial.println("Delta_r"+String(delta_r));
-  Serial.println("Delta_l"+String(delta_l));
-  Serial.println("Delta_Thetha= "+String(total_theta));
+  Serial.print("(Total_Distance_r, Total_Distance_l):(" + String(total_r) + "," + String(total_l) +")|");
+  Serial.println("(Delta_r,Delta_l):("+String(delta_r)+","+String(delta_l)+")");
+  Serial.print("Total_Thetha : "+String(total_theta));
+  Serial.println("| Thetha: "+String(delta_theta));
 
 #endif
 }
@@ -102,7 +100,7 @@ float R_pid_loop(float dist_error, float prev_dist_error){
   //float dist_error = 0;
   //float prev_dist_error = 0;
   float dist_derivative = dist_error - prev_dist_error;
-  float kp_dist = 5;
+  float kp_dist = 3;
   float kd_dist = 0;
   float R_pid = kp_dist * dist_error + kd_dist * dist_derivative;
   R_pid = maxlimit(100,R_pid);
@@ -114,7 +112,7 @@ float theta_pid_loop(float theta_error, float prev_theta_error){
   //float theta_error = 0;
   //float prev_theta_error = 0;
   float theta_derivative = theta_error - prev_theta_error;
-  float kp_theta = 1;
+  float kp_theta = 0.5;
   float kd_theta = 0;
   //float theta_pid = 0;
   float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
@@ -132,26 +130,23 @@ void motor_control(float dist_reqd, float theta_reqd)
 {
   float current_dist_error = dist_reqd;
   float current_theta_error = theta_reqd;
-  Serial.println("Current_theta_error_A"+String(current_theta_error));
   while(pid_enable){
-    Serial.println("Current_theta_error_B"+String(current_theta_error));
     check_cumulative_dist();
     float prev_dist_error = current_dist_error;
     current_dist_error = current_dist_error - delta_r;
     
     float prev_theta_error = current_theta_error;
     current_theta_error = current_theta_error - delta_theta;
-    Serial.println("Current_theta_error_C"+String(current_theta_error));
-    Serial.println("Delta_theta"+String(delta_theta));
 
     float R_pid = R_pid_loop(current_dist_error, prev_dist_error);
     float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
-    Serial.println("R_pid "+String(R_pid));
-    Serial.println("theta_pid "+String(theta_pid));
+    Serial.print("R_pid "+String(R_pid));
+    Serial.println(", theta_pid "+String(theta_pid));
 
-    float leftmotorcontrol = maxlimit(100, R_pid + theta_pid);
-    float rightmotorcontrol = maxlimit(100, R_pid - theta_pid);
+    float leftmotorcontrol = maxlimit(100, R_pid - theta_pid);
+    float rightmotorcontrol = maxlimit(100, R_pid + theta_pid);
     Serial.println("Left motor control "+String(leftmotorcontrol)+", Right motor control "+String(rightmotorcontrol));
+    Serial.println("\n");
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
     delay(1000);

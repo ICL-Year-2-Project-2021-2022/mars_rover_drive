@@ -1,22 +1,22 @@
 #include <Optical_Flow.h>
 
 // perpendicular distance from sensor to axis of rotation
-int sensor_displacement = 5;
+float sensor_displacement = 5;
 
-int total_r = 0;
-int total_l = 0;
+float total_r = 0;
+float total_l = 0;
 
-int total_r1 = 0;
-int total_l1 = 0;
+float total_r1 = 0;
+float total_l1 = 0;
 
-int r = 0;
-int l = 0;
+float r = 0;
+float l = 0;
 
-int distance_r = 0;
-int distance_l = 0;
+float distance_r = 0;
+float distance_l = 0;
 
-int delta_r = 0;
-int delta_l = 0;
+float delta_r = 0;
+float delta_l = 0;
 
 float delta_theta = 0;
 float total_theta = 0;

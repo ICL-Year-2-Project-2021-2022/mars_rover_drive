@@ -50,22 +50,22 @@
 #define ADNS3080_PRODUCT_ID_VAL 0x17
 
 // perpendicular distance from sensor to axis of rotation
-extern int sensor_displacement;
+extern float sensor_displacement;
 
-extern int total_r;
-extern int total_l;
+extern float total_r;
+extern float total_l;
 
-extern int total_r1;
-extern int total_l1;
+extern float total_r1;
+extern float total_l1;
 
-extern int r;
-extern int l;
+extern float r;
+extern float l;
 
-extern int distance_r;
-extern int distance_l;
+extern float distance_r;
+extern float distance_l;
 
-extern int delta_r;
-extern int delta_l;
+extern float delta_r;
+extern float delta_l;
 
 extern float delta_theta;
 extern float total_theta;
