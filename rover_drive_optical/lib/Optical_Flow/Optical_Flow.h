@@ -5,7 +5,7 @@
 // these pins may be different on different boards
 
 #define PIN_SS_LEFT 5    // D7
-#define PIN_SS_RIGHT 22   // D3
+#define PIN_SS_RIGHT 22  // D3
 #define PIN_MISO 19      // D5
 #define PIN_MOSI 23      // D2
 #define PIN_SCK 18       // D6
@@ -51,6 +51,9 @@
 
 #define ADNS3080_PRODUCT_ID_VAL 0x17\
 
+// Chip select pin is set by set_optical_cs()
+extern int PIN_MOUSCAM_CS;
+
 const float au_2_mm = 4.55;
 
 // perpendicular distance from sensor to axis of rotation
@@ -78,6 +81,8 @@ extern volatile byte movementflag;
 extern volatile int xydat[2];
 
 extern int tdistance;
+
+void set_optical_cs(bool isLeft);
 
 int convTwosComp(int b);
 

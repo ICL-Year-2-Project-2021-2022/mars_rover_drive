@@ -1,5 +1,8 @@
 #include <Optical_Flow.h>
 
+// Chip select pin is set by set_optical_cs()
+int PIN_MOUSECAM_CS = PIN_MOUSECAM_CS_LEFT;
+
 float total_r = 0;
 float total_l = 0;
 
@@ -23,32 +26,31 @@ volatile int xydat[2];
 
 int tdistance = 0;
 
-int convTwosComp(int b)
-{
+void set_optical_cs(bool isLeft) {
+  PIN_MOUSCAM_CS = isLeft ? PIN_MOUSECAM_CS_LEFT : PIN_MOUSECAM_CS_RIGHT;
+}
+
+int convTwosComp(int b) {
   // Convert from 2's complement
-  if (b & 0x80)
-  {
+  if (b & 0x80) {
     b = -1 * ((b ^ 0xff) + 1);
   }
   return b;
 }
 
 // converts arbitrary values from sensor to mm using constant conversion factor
-float convertDistanceToMM(int x)
-{
+float convertDistanceToMM(int x) {
   return x / au_2_mm;
 }
 
-void mousecam_reset()
-{
+void mousecam_reset() {
   digitalWrite(PIN_MOUSECAM_RESET, HIGH);
-  delay(1); // reset pulse >10us
+  delay(1);  // reset pulse >10us
   digitalWrite(PIN_MOUSECAM_RESET, LOW);
-  delay(35); // 35ms from reset to functional
+  delay(35);  // 35ms from reset to functional
 }
 
-int mousecam_init()
-{
+int mousecam_init() {
   pinMode(PIN_MOUSECAM_RESET, OUTPUT);
   pinMode(PIN_MOUSECAM_CS, OUTPUT);
 
@@ -58,8 +60,7 @@ int mousecam_init()
   return 1;
 }
 
-void mousecam_write_reg(int reg, int val)
-{
+void mousecam_write_reg(int reg, int val) {
   digitalWrite(PIN_MOUSECAM_CS, LOW);
   SPI.transfer(reg | 0x80);
   SPI.transfer(val);
@@ -67,8 +68,7 @@ void mousecam_write_reg(int reg, int val)
   delayMicroseconds(50);
 }
 
-int mousecam_read_reg(int reg)
-{
+int mousecam_read_reg(int reg) {
   digitalWrite(PIN_MOUSECAM_CS, LOW);
   SPI.transfer(reg);
   delayMicroseconds(75);
@@ -78,8 +78,7 @@ int mousecam_read_reg(int reg)
   return ret;
 }
 
-void mousecam_read_motion(struct MD *p)
-{
+void mousecam_read_motion(struct MD* p) {
   digitalWrite(PIN_MOUSECAM_CS, LOW);
   SPI.transfer(ADNS3080_MOTION_BURST);
   delayMicroseconds(75);
@@ -95,9 +94,9 @@ void mousecam_read_motion(struct MD *p)
 }
 
 // pdata must point to an array of size ADNS3080_PIXELS_X x ADNS3080_PIXELS_Y
-// you must call mousecam_reset() after this if you want to go back to normal operation
-int mousecam_frame_capture(byte *pdata)
-{
+// you must call mousecam_reset() after this if you want to go back to normal
+// operation
+int mousecam_frame_capture(byte* pdata) {
   mousecam_write_reg(ADNS3080_FRAME_CAPTURE, 0x83);
 
   digitalWrite(PIN_MOUSECAM_CS, LOW);
@@ -110,27 +109,23 @@ int mousecam_frame_capture(byte *pdata)
   int count;
   int timeout = 0;
   int ret = 0;
-  for (count = 0; count < ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y;)
-  {
+  for (count = 0; count < ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y;) {
     pix = SPI.transfer(0xff);
     delayMicroseconds(10);
-    if (started == 0)
-    {
+    if (started == 0) {
       if (pix & 0x40)
         started = 1;
-      else
-      {
+      else {
         timeout++;
-        if (timeout == 100)
-        {
+        if (timeout == 100) {
           ret = -1;
           break;
         }
       }
     }
-    if (started == 1)
-    {
-      pdata[count++] = (pix & 0x3f) << 2; // scale to normal grayscale byte range
+    if (started == 1) {
+      pdata[count++] = (pix & 0x3f)
+                       << 2;  // scale to normal grayscale byte range
     }
   }
 
@@ -140,8 +135,7 @@ int mousecam_frame_capture(byte *pdata)
   return ret;
 }
 
-char asciiart(int k)
-{
+char asciiart(int k) {
   static char foo[] = "WX86*3I>!;~:,`. ";
   return foo[k >> 4];
 }
