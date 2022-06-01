@@ -147,6 +147,47 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
   return theta_pid;
 }
 
+
+// turn PD loop
+float turn_pid_loop(float turn_error, float prev_turn_error) {
+  float turn_derivative = turn_error - prev_turn_error;
+  float kp_turn = 20;
+  float kd_turn = 10;
+  float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
+  return turn_pid;
+}
+
+// motor control straight
+void motor_straight(float dist_reqd){
+  float current_dist_error = dist_reqd;
+  float current_turn_error = 0; 
+  while(current_dist_error > max_dist_error){
+    check_cumulative_dist();
+    float prev_dist_error = current_dist_error;
+    current_dist_error = current_dist_error - (delta_v_mm_left + delta_v_mm_right) / 2;
+
+    float prev_turn_error = current_turn_error;
+    current_turn_error = delta_v_mm_right - delta_v_mm_left; 
+    // condition to exit loop
+    if (current_dist_error < max_dist_error) {
+      return;
+    }
+
+    float R_pid = R_pid_loop(current_dist_error, prev_dist_error);
+    float turn_pid = turn_pid_loop(current_turn_error, prev_turn_error);
+
+    float leftmotorcontrol = maxlimit(100, R_pid + turn_pid);
+    float rightmotorcontrol = maxlimit(100, R_pid - turn_pid);
+
+    motorrotate(leftmotorcontrol, motor1);
+    motorrotate(rightmotorcontrol, motor2);
+  }
+}
+
+void motor_rotate(float theta_reqd){
+
+}
+/*
 // main motor control function
 void motor_control(float dist_reqd, float theta_reqd) {
   float current_dist_error = dist_reqd;
@@ -197,7 +238,7 @@ void motor_control(float dist_reqd, float theta_reqd) {
     }
     delay(100);
   }
-}
+}*/
 
 void setup() {
   pinMode(PIN_SS_LEFT, OUTPUT);
@@ -233,7 +274,7 @@ void setup() {
 }
 
 void loop() {
-  motor_control(500, 0);  // move 500mm units?
+  motor_straight(500, 0);  // move 500mm units?
   delay(3000);
   // motor_control(0, PI / 2); // probably need radians -> maybe we convert for
   // the commands
