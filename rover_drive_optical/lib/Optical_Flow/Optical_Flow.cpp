@@ -1,33 +1,28 @@
 #include <Optical_Flow.h>
 
-// Chip select pin is set by set_optical_cs()
+// Chip select pin is set by set_optical_cs() default is left
 int PIN_MOUSECAM_CS = PIN_MOUSECAM_CS_LEFT;
 
-float total_r = 0;
-float total_l = 0;
+float total_u = 0;
+float total_v = 0;
 
-float r = 0;
-float l = 0;
+int delta_u_au_left;
+int delta_v_au_left;
+int delta_u_au_right;
+int delta_v_au_right;
 
-int distance_r_au;
-int distance_l_au;
-
-float distance_r_mm;
-float distance_l_mm;
-
-float delta_r = 0;
-float delta_l = 0;
-
-float delta_theta = 0;
-float total_theta = 0;
+float delta_u_mm_left;
+float delta_v_mm_left;
+float delta_u_mm_right;
+float delta_v_mm_right;
 
 volatile byte movementflag = 0;
 volatile int xydat[2];
 
 int tdistance = 0;
 
-void set_optical_cs(bool isLeft) {
-  PIN_MOUSCAM_CS = isLeft ? PIN_MOUSECAM_CS_LEFT : PIN_MOUSECAM_CS_RIGHT;
+void set_left_optical_cs(bool isLeft) {
+  PIN_MOUSECAM_CS = isLeft ? PIN_MOUSECAM_CS_LEFT : PIN_MOUSECAM_CS_RIGHT;
 }
 
 int convTwosComp(int b) {
@@ -92,52 +87,3 @@ void mousecam_read_motion(struct MD* p) {
   digitalWrite(PIN_MOUSECAM_CS, HIGH);
   delayMicroseconds(5);
 }
-
-// pdata must point to an array of size ADNS3080_PIXELS_X x ADNS3080_PIXELS_Y
-// you must call mousecam_reset() after this if you want to go back to normal
-// operation
-int mousecam_frame_capture(byte* pdata) {
-  mousecam_write_reg(ADNS3080_FRAME_CAPTURE, 0x83);
-
-  digitalWrite(PIN_MOUSECAM_CS, LOW);
-
-  SPI.transfer(ADNS3080_PIXEL_BURST);
-  delayMicroseconds(50);
-
-  int pix;
-  byte started = 0;
-  int count;
-  int timeout = 0;
-  int ret = 0;
-  for (count = 0; count < ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y;) {
-    pix = SPI.transfer(0xff);
-    delayMicroseconds(10);
-    if (started == 0) {
-      if (pix & 0x40)
-        started = 1;
-      else {
-        timeout++;
-        if (timeout == 100) {
-          ret = -1;
-          break;
-        }
-      }
-    }
-    if (started == 1) {
-      pdata[count++] = (pix & 0x3f)
-                       << 2;  // scale to normal grayscale byte range
-    }
-  }
-
-  digitalWrite(PIN_MOUSECAM_CS, HIGH);
-  delayMicroseconds(14);
-
-  return ret;
-}
-
-char asciiart(int k) {
-  static char foo[] = "WX86*3I>!;~:,`. ";
-  return foo[k >> 4];
-}
-
-byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];

@@ -1,7 +1,11 @@
+/*
+Important to note that we use mm for distances and radians for angles
+*/
+
 #include <Arduino.h>
-#include <SPI.h>
-#include <Optical_Flow.h>
 #include <Motor_Drive.h>
+#include <Optical_Flow.h>
+#include <SPI.h>
 #include <math.h>
 
 // max errors
@@ -15,60 +19,50 @@ unsigned long last_print;
 
 // loop functions
 
-void check_cumulative_dist()
-{
-#if 0
+void check_cumulative_dist() {
+  MD md_left;
+  MD md_right;
 
-  if(mousecam_frame_capture(frame)==0)
-  {
-    int i,j,k;
-    for(i=0, k=0; i<ADNS3080_PIXELS_Y; i++)
-    {
-      for(j=0; j<ADNS3080_PIXELS_X; j++, k++)
-      {
-        Serial.print(asciiart(frame[k]));
-        Serial.print(' ');
-      }
-      Serial.println();
-    }
-  }
-  Serial.println();
-  delay(250);
-
-#else
-
-  MD md;
-  mousecam_read_motion(&md);
+  set_left_optical_cs(true);
+  mousecam_read_motion(&md_left);
   delay(100);
-  // measured changes in r and l
-  distance_r_au = convTwosComp(md.dx);
-  distance_l_au = convTwosComp(md.dy);
-  // convert from measured changes in r and l
-  distance_r_mm = convertDistanceToMM(distance_r_au);
-  distance_l_mm = convertDistanceToMM(distance_l_au);
-  // total distance (cumulative)
-  total_r = total_r + distance_r_mm;
-  total_l = total_l + distance_l_mm;
-  // scaled change in distance
-  delta_r = distance_r_mm;
-  delta_l = distance_l_mm;
-  // change in angle, approximation using the cos rule
-  float reference_theta = acos(1 - (pow(delta_l, 2) + pow(delta_r, 2)) / (2 * pow(sensor_displacement, 2)));
-  delta_theta = (delta_l > 0) ? -reference_theta : reference_theta;
-  // total theta (cumulative)
-  total_theta = total_theta + delta_theta;
 
-  // Serial.print("(Total_Distance_r, Total_Distance_l):(" + String(total_r) + "," + String(total_l) + ")|");
-  // Serial.println("(Delta_r,Delta_l):(" + String(delta_r) + "," + String(delta_l) + ")");
-  // Serial.print("Total_Thetha : " + String(total_theta));
-  // Serial.println("| Thetha: " + String(delta_theta));
+  set_left_optical_cs(false);
+  mousecam_read_motion(&md_right);
+  delay(100);
 
-#endif
+  // measured changes in r and l for left
+  delta_u_au_left = convTwosComp(md_left.dx);
+  delta_v_au_left = convTwosComp(md_left.dy);
+  // measured changes in r and l for right
+  delta_u_au_right = convTwosComp(md_right.dx);
+  delta_v_au_right = convTwosComp(md_right.dy);
+
+  // convert from measured changes in u and v for left
+  delta_u_mm_left = convertDistanceToMM(delta_u_au_left);
+  delta_v_mm_left = convertDistanceToMM(delta_v_au_left);
+  // convert from measured changes in u and v for right
+  delta_u_mm_right = convertDistanceToMM(delta_u_au_right);
+  delta_v_mm_right = convertDistanceToMM(delta_v_au_right);
+
+  // total distance (cumulative) for left
+  total_u_left = total_u + delta_u_mm_left;
+  total_v_left = total_v + delta_v_mm_left;
+  // total distance (cumulative) for right
+  total_u_right = total_u + delta_u_mm_right;
+  total_v_right = total_v + delta_v_mm_right;
+
+  // Serial.print("(Total_Distance_r, Total_Distance_l):(" + String(total_r) +
+  // "," + String(total_l) + ")|"); Serial.println("(Delta_r,Delta_l):(" +
+  // String(delta_r) + "," + String(delta_l) + ")"); Serial.print("Total_Thetha
+  // : " + String(total_theta)); Serial.println("| Thetha: " +
+  // String(delta_theta));
 }
 
 /*
 void angle_control(double theta_reqd) {
-  double arc_length = 2*PI*abs(theta_reqd)*0.17/360; //0.17 is radius between axle and sensor
+  double arc_length = 2*PI*abs(theta_reqd)*0.17/360; //0.17 is radius between
+axle and sensor
 
   if (theta_reqd < 0) {
     while (){
@@ -82,39 +76,34 @@ void angle_control(double theta_reqd) {
   }
 }
 */
-bool enable_pid(float dist_reqd, float theta_reqd, float current_dist_error, float current_theta_error) {
-    if (dist_reqd != 0 && theta_reqd == 0){
-      return abs(current_dist_error) > max_dist_error;
-    }
-    else if (dist_reqd == 0 && theta_reqd != 0)
-    {
-      return abs(current_theta_error) > max_theta_error;
-    }
-    else if (dist_reqd != 0 && theta_reqd != 0)
-    {
-      return abs(current_dist_error) > max_dist_error || abs(current_theta_error) > max_theta_error;
-    }
-    return false;
+bool enable_pid(float dist_reqd,
+                float theta_reqd,
+                float current_dist_error,
+                float current_theta_error) {
+  if (dist_reqd != 0 && theta_reqd == 0) {
+    return abs(current_dist_error) > max_dist_error;
+  } else if (dist_reqd == 0 && theta_reqd != 0) {
+    return abs(current_theta_error) > max_theta_error;
+  } else if (dist_reqd != 0 && theta_reqd != 0) {
+    return abs(current_dist_error) > max_dist_error ||
+           abs(current_theta_error) > max_theta_error;
+  }
+  return false;
 }
 
 // limiting function
-float maxlimit(float max, float input)
-{
+float maxlimit(float max, float input) {
   float out;
-  if (input > max)
-  {
+  if (input > max) {
     out = max;
-  }
-  else
-  {
+  } else {
     out = input;
   }
   return out;
 }
 
 // motor profiling function ie sets limits for the minimum motor power
-int motor_profile(int x)
-{
+int motor_profile(int x) {
   return (x == 0) ? 0
          : (x > 0)
              ? (x / 100) * (max_motor_val - min_motor_val) + min_motor_val
@@ -122,21 +111,16 @@ int motor_profile(int x)
 }
 
 // motor function (to remove need for CCW and CW -> -100 to 100)
-void motorrotate(int speed, int motor_no)
-{
-  if (speed > 0)
-  {
+void motorrotate(int speed, int motor_no) {
+  if (speed > 0) {
     robot.rotate(motor_no, motor_profile(speed), CCW);
-  }
-  else
-  {
+  } else {
     robot.rotate(motor_no, motor_profile(abs(speed)), CW);
   }
 }
 
 // distance PD loop
-float R_pid_loop(float dist_error, float prev_dist_error)
-{
+float R_pid_loop(float dist_error, float prev_dist_error) {
   // float dist_error = 0;
   // float prev_dist_error = 0;
   float dist_derivative = dist_error - prev_dist_error;
@@ -148,8 +132,7 @@ float R_pid_loop(float dist_error, float prev_dist_error)
 }
 
 // angle PD loop
-float theta_pid_loop(float theta_error, float prev_theta_error)
-{
+float theta_pid_loop(float theta_error, float prev_theta_error) {
   // float theta_error = 0;
   // float prev_theta_error = 0;
   float theta_derivative = theta_error - prev_theta_error;
@@ -167,14 +150,14 @@ float theta_pid_loop(float theta_error, float prev_theta_error)
 }*/
 
 // main motor control function
-void motor_control(float dist_reqd, float theta_reqd)
-{
+void motor_control(float dist_reqd, float theta_reqd) {
   float current_dist_error = dist_reqd;
   float current_theta_error = theta_reqd;
-  // while ((abs(current_dist_error) > max_dist_error) || (abs(current_theta_error) > max_theta_error))
-  bool enable_pid_bool = enable_pid(dist_reqd, theta_reqd, current_dist_error, current_theta_error);
-  while (enable_pid_bool)
-  {
+  // while ((abs(current_dist_error) > max_dist_error) ||
+  // (abs(current_theta_error) > max_theta_error))
+  bool enable_pid_bool = enable_pid(dist_reqd, theta_reqd, current_dist_error,
+                                    current_theta_error);
+  while (enable_pid_bool) {
     check_cumulative_dist();
     float prev_dist_error = current_dist_error;
     current_dist_error = current_dist_error - delta_r;
@@ -183,8 +166,9 @@ void motor_control(float dist_reqd, float theta_reqd)
     current_theta_error = current_theta_error - delta_theta;
 
     // returns if pid no longer required
-    enable_pid_bool = enable_pid(dist_reqd, theta_reqd, current_dist_error, current_theta_error);
-    if(!enable_pid_bool){
+    enable_pid_bool = enable_pid(dist_reqd, theta_reqd, current_dist_error,
+                                 current_theta_error);
+    if (!enable_pid_bool) {
       return;
     }
 
@@ -195,7 +179,8 @@ void motor_control(float dist_reqd, float theta_reqd)
 
     float leftmotorcontrol = maxlimit(100, R_pid + theta_pid);
     float rightmotorcontrol = maxlimit(100, R_pid - theta_pid);
-    // Serial.println("Left motor control "+String(leftmotorcontrol)+", Right motor control "+String(rightmotorcontrol));
+    // Serial.println("Left motor control "+String(leftmotorcontrol)+", Right
+    // motor control "+String(rightmotorcontrol));
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
 
@@ -226,13 +211,17 @@ void motor_control(float dist_reqd, float theta_reqd)
     motorrotate(0, motor1);
     motorrotate(0, motor2);*/
 
-    if ((millis() - last_print) > 1000)
-    {
-      Serial.println("Total_l,Total_r: ("+ String(total_l)+","+String(total_r)+")");
-      Serial.println("Total_Thetha : " + String(total_theta));
-      Serial.println("Current dist error " + String(current_dist_error) + "Prev dist error " + String(prev_dist_error));
-      Serial.println("Current theta error " + String(current_theta_error) + "Prev theta error " + String(prev_theta_error));
-      Serial.println("Left motor control "+String(leftmotorcontrol)+", Right motor control "+String(rightmotorcontrol));
+    if ((millis() - last_print) > 1000) {
+      Serial.println("Total_u_left,Total_v_left: (" + String(total_u_left) + "," +
+                     String(total_v_right) + ")");
+      Serial.println("Total_u_right,Total_v_right: (" + String(total_u_right) + "," +
+                     String(total_v_right) + ")");
+      Serial.println("Current dist error " + String(current_dist_error) +
+                     "Prev dist error " + String(prev_dist_error));
+      Serial.println("Current theta error " + String(current_theta_error) +
+                     "Prev theta error " + String(prev_theta_error));
+      Serial.println("Left motor control " + String(leftmotorcontrol) +
+                     ", Right motor control " + String(rightmotorcontrol));
       Serial.println("\n");
       last_print = millis();
     }
@@ -240,9 +229,9 @@ void motor_control(float dist_reqd, float theta_reqd)
   }
 }
 
-void setup()
-{
-  pinMode(PIN_SS, OUTPUT);
+void setup() {
+  pinMode(PIN_SS_LEFT, OUTPUT);
+  pinMode(PIN_SS_RIGHT, OUTPUT);
   pinMode(PIN_MISO, INPUT);
   pinMode(PIN_MOSI, OUTPUT);
   pinMode(PIN_SCK, OUTPUT);
@@ -258,20 +247,27 @@ void setup()
 
   last_print = millis();
 
-  if (mousecam_init() == -1)
-  {
-    Serial.println("Mouse cam failed to init");
+  set_left_optical_cs(true);
+  if (mousecam_init() == -1) {
+    Serial.println("Left optical flow sensor failed to init");
+    while (1)
+      ;
+  }
+
+  set_left_optical_cs(false);
+  if (mousecam_init() == -1) {
+    Serial.println("Right optical flow sensor failed to init");
     while (1)
       ;
   }
 }
 
-void loop()
-{
-  motor_control(500, 0); // move 500mm units?
+void loop() {
+  motor_control(500, 0);  // move 500mm units?
   delay(3000);
-  // motor_control(0, PI / 2); // probably need radians -> maybe we convert for the commands
-  //delay(3000);
+  // motor_control(0, PI / 2); // probably need radians -> maybe we convert for
+  // the commands
+  // delay(3000);
 }
 /*void cumulative_loop()
 {

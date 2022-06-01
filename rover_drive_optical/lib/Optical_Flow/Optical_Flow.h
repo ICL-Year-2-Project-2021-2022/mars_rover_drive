@@ -59,30 +59,30 @@ const float au_2_mm = 4.55;
 // perpendicular distance from sensor to axis of rotation
 const int sensor_displacement = 127;
 
-extern float total_r;
-extern float total_l;
+extern float total_u = 0;
+extern float total_v = 0;
 
-extern float r;
-extern float l;
+extern int delta_u_au_left;
+extern int delta_v_au_left;
+extern int delta_u_au_right;
+extern int delta_v_au_right;
 
-extern int distance_r_au;
-extern int distance_l_au;
+extern float delta_u_mm_left;
+extern float delta_v_mm_left;
+extern float delta_u_mm_right;
+extern float delta_v_mm_right;
 
-extern float distance_r_mm;
-extern float distance_l_mm;
-
-extern float delta_r;
-extern float delta_l;
-
-extern float delta_theta;
-extern float total_theta;
+extern float total_u_left;
+extern float total_v_left;
+extern float total_u_right;
+extern float total_v_right;
 
 extern volatile byte movementflag;
 extern volatile int xydat[2];
 
 extern int tdistance;
 
-void set_optical_cs(bool isLeft);
+void set_left_optical_cs(bool isLeft);
 
 int convTwosComp(int b);
 
