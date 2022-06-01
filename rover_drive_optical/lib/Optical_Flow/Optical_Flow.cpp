@@ -3,9 +3,6 @@
 // Chip select pin is set by set_optical_cs() default is left
 int PIN_MOUSECAM_CS = PIN_MOUSECAM_CS_LEFT;
 
-float total_u = 0;
-float total_v = 0;
-
 int delta_u_au_left;
 int delta_v_au_left;
 int delta_u_au_right;
@@ -15,6 +12,11 @@ float delta_u_mm_left;
 float delta_v_mm_left;
 float delta_u_mm_right;
 float delta_v_mm_right;
+
+float total_u_left;
+float total_v_left;
+float total_u_right;
+float total_v_right;
 
 volatile byte movementflag = 0;
 volatile int xydat[2];

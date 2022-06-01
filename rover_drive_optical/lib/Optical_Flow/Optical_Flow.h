@@ -59,9 +59,6 @@ const float au_2_mm = 4.55;
 // perpendicular distance from sensor to axis of rotation
 const int sensor_displacement = 127;
 
-extern float total_u = 0;
-extern float total_v = 0;
-
 extern int delta_u_au_left;
 extern int delta_v_au_left;
 extern int delta_u_au_right;

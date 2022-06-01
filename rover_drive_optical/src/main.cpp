@@ -10,6 +10,7 @@ Important to note that we use mm for distances and radians for angles
 
 // max errors
 const float max_dist_error = 0.01;
+const float max_turn_error = 0.01;
 const float max_theta_error = 0.01;
 
 const int min_motor_val = 25;
@@ -46,11 +47,11 @@ void check_cumulative_dist() {
   delta_v_mm_right = convertDistanceToMM(delta_v_au_right);
 
   // total distance (cumulative) for left
-  total_u_left = total_u + delta_u_mm_left;
-  total_v_left = total_v + delta_v_mm_left;
+  total_u_left = total_u_left + delta_u_mm_left;
+  total_v_left = total_v_left + delta_v_mm_left;
   // total distance (cumulative) for right
-  total_u_right = total_u + delta_u_mm_right;
-  total_v_right = total_v + delta_v_mm_right;
+  total_u_right = total_u_right + delta_u_mm_right;
+  total_v_right = total_v_right + delta_v_mm_right;
 
   // Serial.print("(Total_Distance_r, Total_Distance_l):(" + String(total_r) +
   // "," + String(total_l) + ")|"); Serial.println("(Delta_r,Delta_l):(" +
@@ -104,15 +105,16 @@ float maxlimit(float max, float input) {
 
 // motor profiling function ie sets limits for the minimum motor power
 int motor_profile(int preadj_speed) {
-  int adj_speed = 0;
+
+  float adj_speed = 0;
   if (preadj_speed > 0) {
     adj_speed =
-        (preadj_speed / 100) * (max_motor_val - min_motor_val) + min_motor_val;
+        (preadj_speed / 100.0) * (max_motor_val - min_motor_val) + min_motor_val;
   } else if (preadj_speed < 0) {
     adj_speed =
-        (preadj_speed / 100) * (max_motor_val - min_motor_val) - min_motor_val;
+        (preadj_speed / 100.0) * (max_motor_val - min_motor_val) - min_motor_val;
   }
-  return adj_speed;
+  return (int)adj_speed;
   /*return (x == 0) ? 0
          : (x > 0)
              ? (x / 100) * (max_motor_val - min_motor_val) + min_motor_val
@@ -121,6 +123,8 @@ int motor_profile(int preadj_speed) {
 
 // motor function (to remove need for CCW and CW -> -100 to 100)
 void motorrotate(int speed, int motor_no) {
+  Serial.println(speed);
+  Serial.println(motor_profile(speed));
   if (speed > 0) {
     robot.rotate(motor_no, motor_profile(speed), CCW);
   } else {
@@ -131,7 +135,7 @@ void motorrotate(int speed, int motor_no) {
 // distance PD loop
 float R_pid_loop(float dist_error, float prev_dist_error) {
   float dist_derivative = dist_error - prev_dist_error;
-  float kp_dist = 5;
+  float kp_dist = 0.2;
   float kd_dist = 0;
   float R_pid = kp_dist * dist_error + kd_dist * dist_derivative;
   R_pid = maxlimit(100, R_pid);
@@ -147,27 +151,28 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
   return theta_pid;
 }
 
-
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
   float turn_derivative = turn_error - prev_turn_error;
-  float kp_turn = 20;
-  float kd_turn = 10;
+  float kp_turn = 0.0;
+  float kd_turn = 0;
   float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
   return turn_pid;
 }
 
 // motor control straight
-void motor_straight(float dist_reqd){
+// takes distance in mm
+void motor_straight(float dist_reqd) {
   float current_dist_error = dist_reqd;
-  float current_turn_error = 0; 
-  while(current_dist_error > max_dist_error){
+  float current_turn_error = 0;
+  while (current_dist_error > max_dist_error) {
     check_cumulative_dist();
     float prev_dist_error = current_dist_error;
-    current_dist_error = current_dist_error - (delta_v_mm_left + delta_v_mm_right) / 2;
+    current_dist_error =
+        current_dist_error - (delta_v_mm_left + delta_v_mm_right) / 2;
 
     float prev_turn_error = current_turn_error;
-    current_turn_error = delta_v_mm_right - delta_v_mm_left; 
+    current_turn_error = delta_v_mm_right - delta_v_mm_left;
     // condition to exit loop
     if (current_dist_error < max_dist_error) {
       return;
@@ -181,12 +186,19 @@ void motor_straight(float dist_reqd){
 
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
+
+    if ((millis() - last_print) > 1000) {
+      Serial.println("Current dist error " + String(current_dist_error) +
+                     "Prev dist error " + String(prev_dist_error));
+      Serial.println("Left motor control " + String(leftmotorcontrol) +
+                     ", Right motor control " + String(rightmotorcontrol));
+      Serial.println("\n");
+      last_print = millis();
+    }
   }
 }
 
-void motor_rotate(float theta_reqd){
-
-}
+void motor_rotate(float theta_reqd) {}
 /*
 // main motor control function
 void motor_control(float dist_reqd, float theta_reqd) {
@@ -274,7 +286,7 @@ void setup() {
 }
 
 void loop() {
-  motor_straight(500, 0);  // move 500mm units?
+  motor_straight(500);  // move 500mm units
   delay(3000);
   // motor_control(0, PI / 2); // probably need radians -> maybe we convert for
   // the commands
