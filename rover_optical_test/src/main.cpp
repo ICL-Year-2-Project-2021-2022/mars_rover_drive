@@ -284,11 +284,11 @@ void loop() {
 
   set_left_optical_cs(true);
   mousecam_read_motion(&md_left);
-  delay(100);
+  delay(10);
 
   set_left_optical_cs(false);
   mousecam_read_motion(&md_right);
-  delay(100);
+  delay(10);
 
   distance_x_left = convTwosComp(md_left.dx);
   distance_y_left = convTwosComp(md_left.dy);
@@ -314,7 +314,7 @@ void loop() {
   Serial.print(",");
   Serial.print(total_x1_left);
   Serial.print(",");
-  Serial.println(total_y1_left);
+  Serial.print(total_y1_left);
   Serial.print(",");
   // Serial.println("Distance_y = " + String(total_y));
   // Serial.print('\n');
