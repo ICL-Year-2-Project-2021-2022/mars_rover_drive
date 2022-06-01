@@ -140,7 +140,7 @@ float R_pid_loop(float dist_error, float prev_dist_error)
   // float dist_error = 0;
   // float prev_dist_error = 0;
   float dist_derivative = dist_error - prev_dist_error;
-  float kp_dist = 0;
+  float kp_dist = 5;
   float kd_dist = 0;
   float R_pid = kp_dist * dist_error + kd_dist * dist_derivative;
   R_pid = maxlimit(100, R_pid);
@@ -228,9 +228,11 @@ void motor_control(float dist_reqd, float theta_reqd)
 
     if ((millis() - last_print) > 1000)
     {
+      Serial.println("Total_l,Total_r: ("+ String(total_l)+","+String(total_r)+")");
       Serial.println("Total_Thetha : " + String(total_theta));
       Serial.println("Current dist error " + String(current_dist_error) + "Prev dist error " + String(prev_dist_error));
       Serial.println("Current theta error " + String(current_theta_error) + "Prev theta error " + String(prev_theta_error));
+      Serial.println("Left motor control "+String(leftmotorcontrol)+", Right motor control "+String(rightmotorcontrol));
       Serial.println("\n");
       last_print = millis();
     }
@@ -266,10 +268,10 @@ void setup()
 
 void loop()
 {
-  // motor_control(1000, 0); // move 10 units?
-  //  delay(3000);
-  motor_control(0, PI / 2); // probably need radians -> maybe we convert for the commands
+  motor_control(500, 0); // move 500mm units?
   delay(3000);
+  // motor_control(0, PI / 2); // probably need radians -> maybe we convert for the commands
+  //delay(3000);
 }
 /*void cumulative_loop()
 {
