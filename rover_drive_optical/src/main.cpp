@@ -13,10 +13,9 @@ const float max_dist_error = 0.01;
 const float max_turn_error = 0.01;
 const float max_theta_error = 0.01;
 
-const int min_motor_val = 25;
+const int min_motor_val = 20;
 const int max_motor_val = 100;
 
-const float sensor_displacement = 150; // CHANGE
 unsigned long last_print;
 
 // loop functions
@@ -41,11 +40,11 @@ void check_cumulative_dist() {
   delta_v_au_right = convTwosComp(md_right.dy);
 
   // convert from measured changes in u and v for left
-  delta_u_mm_left = convertDistanceToMM(delta_u_au_left);
-  delta_v_mm_left = convertDistanceToMM(delta_v_au_left);
+  delta_u_mm_left = convertDistanceToMM(delta_u_au_left, au_2_mm_left);
+  delta_v_mm_left = convertDistanceToMM(delta_v_au_left, au_2_mm_left);
   // convert from measured changes in u and v for right
-  delta_u_mm_right = convertDistanceToMM(delta_u_au_right);
-  delta_v_mm_right = convertDistanceToMM(delta_v_au_right);
+  delta_u_mm_right = convertDistanceToMM(delta_u_au_right, au_2_mm_right);
+  delta_v_mm_right = convertDistanceToMM(delta_v_au_right, au_2_mm_right);
 
   // total distance (cumulative) for left
   total_u_left = total_u_left + delta_u_mm_left;
@@ -53,13 +52,23 @@ void check_cumulative_dist() {
   // total distance (cumulative) for right
   total_u_right = total_u_right + delta_u_mm_right;
   total_v_right = total_v_right + delta_v_mm_right;
-  
+
   // angle calculation for left and right
-  float reference_theta_left = acos(1 - (pow(delta_u_mm_left, 2) + pow(delta_v_mm_left, 2)) / (2 * pow(sensor_displacement, 2)));
-  float delta_theta_left = (delta_u_mm_left > 0) ? -reference_theta_left : reference_theta_left;
-  
-  float reference_theta_right = acos(1 - (pow(delta_u_mm_right, 2) + pow(delta_v_mm_right, 2)) / (2 * pow(sensor_displacement, 2)));
-  float delta_theta_right = (delta_u_mm_right > 0) ? -reference_theta_right : reference_theta_right;
+  reference_theta_left =
+      acos(1 - (pow(delta_u_mm_left, 2) + pow(delta_v_mm_left, 2)) /
+                   (2 * pow(sensor_displacement, 2)));
+  delta_theta_left =
+      (delta_v_mm_left > 0) ? reference_theta_left : -reference_theta_left;
+
+  reference_theta_right =
+      acos(1 - (pow(delta_u_mm_right, 2) + pow(delta_v_mm_right, 2)) /
+                   (2 * pow(sensor_displacement, 2)));
+  delta_theta_right =
+      (delta_v_mm_right > 0) ? reference_theta_right : -reference_theta_right;
+
+  total_theta_left = total_theta_left + delta_theta_left;
+  total_theta_right = total_theta_right + delta_theta_right;
+
   // Serial.print("(Total_Distance_r, Total_Distance_l):(" + String(total_r) +
   // "," + String(total_l) + ")|"); Serial.println("(Delta_r,Delta_l):(" +
   // String(delta_r) + "," + String(delta_l) + ")"); Serial.print("Total_Thetha
@@ -112,14 +121,13 @@ float maxlimit(float max, float input) {
 
 // motor profiling function ie sets limits for the minimum motor power
 int motor_profile(int preadj_speed) {
-
   float adj_speed = 0;
   if (preadj_speed > 0) {
-    adj_speed =
-        (preadj_speed / 100.0) * (max_motor_val - min_motor_val) + min_motor_val;
+    adj_speed = (preadj_speed / 100.0) * (max_motor_val - min_motor_val) +
+                min_motor_val;
   } else if (preadj_speed < 0) {
-    adj_speed =
-        (preadj_speed / 100.0) * (max_motor_val - min_motor_val) - min_motor_val;
+    adj_speed = (preadj_speed / 100.0) * (max_motor_val - min_motor_val) -
+                min_motor_val;
   }
   return (int)adj_speed;
   /*return (x == 0) ? 0
@@ -130,8 +138,6 @@ int motor_profile(int preadj_speed) {
 
 // motor function (to remove need for CCW and CW -> -100 to 100)
 void motorrotate(int speed, int motor_no) {
-  Serial.println(speed);
-  Serial.println(motor_profile(speed));
   if (speed > 0) {
     robot.rotate(motor_no, motor_profile(speed), CCW);
   } else {
@@ -149,11 +155,11 @@ float R_pid_loop(float dist_error, float prev_dist_error) {
   return R_pid;
 }
 
- //angle PD loop
+// angle PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error) {
   float theta_derivative = theta_error - prev_theta_error;
-  float kp_theta = 20; //change
-  float kd_theta = 10;
+  float kp_theta = 5;  // change
+  float kd_theta = 0;
   float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
   return theta_pid;
 }
@@ -169,8 +175,8 @@ float turn_pid_loop(float turn_error, float prev_turn_error) {
 
 // offset PD loop
 float offset_pid_loop(float offset_error, float prev_offset_error) {
-  float offset_derivative = offset_error - prev_offsest_error;
-  float kp_offset = 0.0;
+  float offset_derivative = offset_error - prev_offset_error;
+  float kp_offset = 0.;
   float kd_offset = 0;
   float offset_pid = kp_offset * offset_error + kd_offset * offset_derivative;
   return offset_pid;
@@ -190,7 +196,7 @@ void rover_straight(float dist_reqd) {
     float prev_turn_error = current_turn_error;
     current_turn_error = delta_v_mm_right - delta_v_mm_left;
     // condition to exit loop
-    if (current_dist_error < max_dist_error) {
+    if (abs(current_dist_error) < max_dist_error) {
       return;
     }
 
@@ -220,21 +226,35 @@ void rover_rotate(float theta_reqd) {
   while (current_theta_error > max_theta_error) {
     check_cumulative_dist();
     float prev_theta_error = current_theta_error;
-    current_theta_error = current_theta_error - (delta_theta_left + delta_theta_right) / 2;
+    current_theta_error =
+        current_theta_error - (delta_theta_left + delta_theta_right) / 2;
 
     float prev_offset_error = current_offset_error;
     current_offset_error = delta_v_mm_right + delta_v_mm_left;
     // condition to exit loop
-    if (current_theta_error < max_theta_error) {
+    if (abs(current_theta_error) < max_theta_error) {
       return;
     }
     float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
     float offset_pid = offset_pid_loop(current_offset_error, prev_offset_error);
-    float leftmotorcontrol = maxlimit(100, theta_pid + offset_pid);
-    float rightmotorcontrol = maxlimit(100, theta_pid - offset_pid);
+    float leftmotorcontrol = maxlimit(100, theta_pid - offset_pid);
+    float rightmotorcontrol = maxlimit(100, -theta_pid - offset_pid);
 
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
+
+    if ((millis() - last_print) > 1000) {
+      Serial.println("Total_theta: (" +
+                     String(total_theta_left) +","+String(total_theta_right) + ")|Average: "+String((total_theta_left+total_theta_right)/2));
+      Serial.println("Current theta error " + String(current_theta_error) +
+                     "Prev theta error " + String(prev_theta_error));
+      Serial.println("Left motor control " + String(leftmotorcontrol) +
+                     ", Right motor control " + String(rightmotorcontrol));
+      Serial.println("\n");
+      last_print = millis();
+    }
+
+    delay(50);
   }
 }
 
@@ -325,7 +345,8 @@ void setup() {
 }
 
 void loop() {
-  rover_straight(500);  // move 500mm units
+  // rover_straight(500);  // move 500mm units
+  rover_rotate(PI / 2);
   delay(3000);
   // motor_control(0, PI / 2); // probably need radians -> maybe we convert for
   // the commands

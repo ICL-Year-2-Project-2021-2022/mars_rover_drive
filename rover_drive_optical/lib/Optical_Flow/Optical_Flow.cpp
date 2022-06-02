@@ -18,6 +18,14 @@ float total_v_left;
 float total_u_right;
 float total_v_right;
 
+float reference_theta_left;
+float delta_theta_left;
+float reference_theta_right;
+float delta_theta_right;
+
+float total_theta_left;
+float total_theta_right;
+
 volatile byte movementflag = 0;
 volatile int xydat[2];
 
@@ -36,7 +44,7 @@ int convTwosComp(int b) {
 }
 
 // converts arbitrary values from sensor to mm using constant conversion factor
-float convertDistanceToMM(int x) {
+float convertDistanceToMM(int x, float au_2_mm) {
   return x / au_2_mm;
 }
 

@@ -49,15 +49,16 @@
 #define ADNS3080_MOTION_BURST 0x50
 #define ADNS3080_SROM_LOAD 0x60
 
-#define ADNS3080_PRODUCT_ID_VAL 0x17\
+#define ADNS3080_PRODUCT_ID_VAL 0x17
 
 // Chip select pin is set by set_optical_cs()
 extern int PIN_MOUSCAM_CS;
 
-const float au_2_mm = 4.55;
+const float au_2_mm_left = 4.24;
+const float au_2_mm_right = 4.82;
 
 // perpendicular distance from sensor to axis of rotation
-const int sensor_displacement = 127;
+const float sensor_displacement = 131;
 
 extern int delta_u_au_left;
 extern int delta_v_au_left;
@@ -74,6 +75,14 @@ extern float total_v_left;
 extern float total_u_right;
 extern float total_v_right;
 
+extern float reference_theta_left;
+extern float delta_theta_left;
+extern float reference_theta_right;
+extern float delta_theta_right;
+
+extern float total_theta_left;
+extern float total_theta_right;
+
 extern volatile byte movementflag;
 extern volatile int xydat[2];
 
@@ -83,7 +92,7 @@ void set_left_optical_cs(bool isLeft);
 
 int convTwosComp(int b);
 
-float convertDistanceToMM(int x);
+float convertDistanceToMM(int x, float au_2_mm);
 
 void mousecam_reset();
 
@@ -94,8 +103,7 @@ void mousecam_write_reg(int reg, int val);
 int mousecam_read_reg(int reg);
 
 // Motion burst data from optical flow sensor
-struct MD
-{
+struct MD {
   byte motion;
   char dx, dy;
   byte squal;
@@ -103,10 +111,11 @@ struct MD
   byte max_pix;
 };
 
-void mousecam_read_motion(struct MD *p);
+void mousecam_read_motion(struct MD* p);
 
 // pdata must point to an array of size ADNS3080_PIXELS_X x ADNS3080_PIXELS_Y
-// you must call mousecam_reset() after this if you want to go back to normal operation
-int mousecam_frame_capture(byte *pdata);
+// you must call mousecam_reset() after this if you want to go back to normal
+// operation
+int mousecam_frame_capture(byte* pdata);
 
 char asciiart(int k);
