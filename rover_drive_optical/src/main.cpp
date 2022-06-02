@@ -82,10 +82,9 @@ void check_cumulative_dist() {
   total_theta_left = total_theta_left + delta_theta_left;
   total_theta_right = total_theta_right + delta_theta_right;
 
-  // Serial.print("(Total_Distance_r, Total_Distance_l):(" + String(total_r) +
-  // "," + String(total_l) + ")|"); Serial.println("(Delta_r,Delta_l):(" +
-  // String(delta_r) + "," + String(delta_l) + ")"); Serial.print("Total_Thetha
-  // : " + String(total_theta)); Serial.println("| Thetha: " +
+  // Serial.println("(Total_Theta_Left, Total_Theta_Right):(" + String(total_theta_left) + "," + String(total_theta_right) + ")"); 
+  //Serial.println("(Delta_r,Delta_l):(" + String(delta_r) + "," + String(delta_l) + ")"); Serial.print("Total_Thetha
+  //: " + String(total_theta)); Serial.println("| Thetha: " +
   // String(delta_theta));
 }
 
@@ -171,7 +170,7 @@ float R_pid_loop(float dist_error, float prev_dist_error) {
 // angle PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error) {
   float theta_derivative = theta_error - prev_theta_error;
-  float kp_theta = 5;  // change
+  float kp_theta = 20;  // change
   float kd_theta = 0;
   float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
   return theta_pid;
