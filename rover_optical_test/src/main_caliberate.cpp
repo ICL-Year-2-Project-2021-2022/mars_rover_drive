@@ -547,6 +547,8 @@ void setup() {
     while (1)
       ;
   }
+
+  calibrate_optical_sensors();
 }
 
 char asciiart(int k) {
