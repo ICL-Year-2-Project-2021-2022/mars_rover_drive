@@ -217,8 +217,8 @@ void calibrate_optical_sensors() {
     unsigned long waitForThirty = millis();
     while (!Serial.available()) {
         if (Serial.available() > 0) {   // read the incoming byte:
-            byte incomingByte = Serial.read();
-            if (incomingByte == 'N' || incomingByte == 'n') {
+            char incomingChar = Serial.read();
+            if (incomingChar == 'N' || incomingChar == 'n') {
                 Serial.println("Calibraton aborted. Rover will be using past calibration values.");
                 set_from_EEPROM();
                 return; 
@@ -500,12 +500,12 @@ void calibrate_optical_sensors() {
 
     while (!Serial.available() || validResponse == false) {
         if (Serial.available() > 0) {   // read the incoming byte:
-            byte incomingByte = Serial.read();
-            if (incomingByte == 'N' || incomingByte == 'n') {
+            char incomingChar = Serial.read();
+            if (incomingChar == 'N' || incomingChar == 'n') {
                 calibrate_optical_sensors();
                 validResponse = true;
             }
-            else if (incomingByte == 'Y' || incomingByte == 'y') {
+            else if (incomingChar == 'Y' || incomingChar == 'y') {
                 EEPROM.write(address_cal_value_left, average_left_values);
                 EEPROM.write(address_cal_value_right,average_right_values);
                 validResponse = true;
