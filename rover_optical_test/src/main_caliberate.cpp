@@ -202,6 +202,9 @@ int mousecam_frame_capture(byte* pdata) {
   return ret;
 }
 
+float au_2_mm_left;
+float au_2_mm_right;
+
 void set_from_EEPROM() {
     au_2_mm_left = EEPROM.read(address_cal_value_left);
     au_2_mm_right = EEPROM.read(address_cal_value_right);
@@ -214,7 +217,7 @@ void calibrate_optical_sensors() {
     unsigned long waitForThirty = millis();
     while (!Serial.available()) {
         if (Serial.available() > 0) {   // read the incoming byte:
-            incomingByte = Serial.read();
+            byte incomingByte = Serial.read();
             if (incomingByte == 'N' || incomingByte == 'n') {
                 Serial.println("Calibraton aborted. Rover will be using past calibration values.");
                 set_from_EEPROM();
@@ -497,7 +500,7 @@ void calibrate_optical_sensors() {
 
     while (!Serial.available() || validResponse == false) {
         if (Serial.available() > 0) {   // read the incoming byte:
-            incomingByte = Serial.read();
+            byte incomingByte = Serial.read();
             if (incomingByte == 'N' || incomingByte == 'n') {
                 calibrate_optical_sensors();
                 validResponse = true;
