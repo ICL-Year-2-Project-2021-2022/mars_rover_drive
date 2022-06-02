@@ -56,13 +56,13 @@
 // Chip select pin is set by set_optical_cs() default is left
 int PIN_MOUSECAM_CS = PIN_MOUSECAM_CS_LEFT;
 
-int total_x = 0;
-int total_y = 0;
+float total_x = 0;
+float total_y = 0;
 
-int total_x1_left = 0;
-int total_y1_left = 0;
-int total_x1_right = 0;
-int total_y1_right = 0;
+float total_x1_left = 0;
+float total_y1_left = 0;
+float total_x1_right = 0;
+float total_y1_right = 0;
 
 int x = 0;
 int y = 0;
@@ -70,10 +70,10 @@ int y = 0;
 int a = 0;
 int b = 0;
 
-int distance_x_left = 0;
-int distance_y_left = 0;
-int distance_x_right = 0;
-int distance_y_right = 0;
+float distance_x_left = 0;
+float distance_y_left = 0;
+float distance_x_right = 0;
+float distance_y_right = 0;
 
 volatile byte movementflag = 0;
 volatile int xydat[2];
@@ -213,7 +213,7 @@ void set_from_EEPROM() {
 }
 
 void calibrate_optical_sensors() {
-    Serial.println("Starting Calibration. If previous values to be used, wait for 30 seconds or press 'N'. Otherwise press");
+    Serial.println("Starting Calibration. If previous values to be used, wait for 30 seconds or press 'N'. Otherwise press any other button.");
     unsigned long waitForThirty = millis();
     while (!Serial.available()) {
       delay(50);
@@ -268,6 +268,7 @@ void calibrate_optical_sensors() {
 
         total_x1_right = total_x1_right + distance_x_right;
         total_y1_right = total_y1_right + distance_y_right;
+        
 
     }
     char incomingChar = Serial.read();
@@ -281,6 +282,8 @@ void calibrate_optical_sensors() {
     distance_y_left = 0;
     distance_x_right = 0;
     distance_y_right = 0;
+    total_x1_left = 0;
+    total_y1_left = 0;
     total_x1_right = 0;
     total_y1_right = 0;
 
@@ -313,7 +316,7 @@ void calibrate_optical_sensors() {
 
     }
     
-    char incomingChar = Serial.read();
+    incomingChar = Serial.read();
 
     cal_values_left[1] = abs(total_y1_left)/500;
     cal_values_right[1] = abs(total_y1_right)/500;
@@ -323,6 +326,8 @@ void calibrate_optical_sensors() {
     distance_y_left = 0;
     distance_x_right = 0;
     distance_y_right = 0;
+    total_x1_left = 0;
+    total_y1_left = 0;
     total_x1_right = 0;
     total_y1_right = 0;
 
@@ -355,7 +360,7 @@ void calibrate_optical_sensors() {
 
     }
 
-    char incomingChar = Serial.read();
+    incomingChar = Serial.read();
 
     cal_values_left[2] = total_y1_left/300;
     cal_values_right[2] = total_y1_right/300;
@@ -365,6 +370,8 @@ void calibrate_optical_sensors() {
     distance_y_left = 0;
     distance_x_right = 0;
     distance_y_right = 0;
+    total_x1_left = 0;
+    total_y1_left = 0;
     total_x1_right = 0;
     total_y1_right = 0;
 
@@ -397,7 +404,7 @@ void calibrate_optical_sensors() {
 
     }
 
-    char incomingChar = Serial.read();
+    incomingChar = Serial.read();
 
     cal_values_left[3] = abs(total_y1_left)/300;
     cal_values_right[3] = abs(total_y1_right)/300;
@@ -407,6 +414,8 @@ void calibrate_optical_sensors() {
     distance_y_left = 0;
     distance_x_right = 0;
     distance_y_right = 0;
+    total_x1_left = 0;
+    total_y1_left = 0;
     total_x1_right = 0;
     total_y1_right = 0;
 
@@ -439,7 +448,7 @@ void calibrate_optical_sensors() {
 
     }
 
-    char incomingChar = Serial.read();
+    incomingChar = Serial.read();
 
     cal_values_left[4] = total_y1_left/100;
     cal_values_right[4] = total_y1_right/100;
@@ -449,6 +458,8 @@ void calibrate_optical_sensors() {
     distance_y_left = 0;
     distance_x_right = 0;
     distance_y_right = 0;
+    total_x1_left = 0;
+    total_y1_left = 0;
     total_x1_right = 0;
     total_y1_right = 0;
 
@@ -481,8 +492,8 @@ void calibrate_optical_sensors() {
 
     }
 
-    char incomingChar = Serial.read();
-    
+    incomingChar = Serial.read();
+
     cal_values_left[5] = abs(total_y1_left)/100;
     cal_values_right[5] = abs(total_y1_right)/100;
     Serial.println("CAL VALUE LEFT: " + String(cal_values_left[5]));
@@ -491,6 +502,8 @@ void calibrate_optical_sensors() {
     distance_y_left = 0;
     distance_x_right = 0;
     distance_y_right = 0;
+    total_x1_left = 0;
+    total_y1_left = 0;
     total_x1_right = 0;
     total_y1_right = 0;
 
@@ -522,6 +535,7 @@ void calibrate_optical_sensors() {
             else if (incomingChar == 'Y' || incomingChar == 'y') {
                 EEPROM.write(address_cal_value_left, average_left_values);
                 EEPROM.write(address_cal_value_right,average_right_values);
+                Serial.println("Written for left: " + String(EEPROM.read(address_cal_value_left)));
                 validResponse = true;
             }
             else {
