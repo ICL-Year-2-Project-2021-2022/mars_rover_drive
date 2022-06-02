@@ -18,6 +18,14 @@ const int max_motor_val = 100;
 
 unsigned long last_print;
 
+float get_delta_theta(float delta_u_mm,
+                      float delta_v_mm,
+                      float sensor_displacement_local) {
+  float reference_theta = acos(1 - (pow(delta_u_mm, 2) + pow(delta_v_mm, 2)) /
+                                       (2 * pow(sensor_displacement_local, 2)));
+  return (delta_u_mm < 0) ? reference_theta : -reference_theta;
+}
+
 // loop functions
 
 void check_cumulative_dist() {
@@ -54,7 +62,7 @@ void check_cumulative_dist() {
   total_v_right = total_v_right + delta_v_mm_right;
 
   // angle calculation for left and right
-  reference_theta_left =
+  /*reference_theta_left =
       acos(1 - (pow(delta_u_mm_left, 2) + pow(delta_v_mm_left, 2)) /
                    (2 * pow(sensor_displacement, 2)));
   delta_theta_left =
@@ -65,6 +73,11 @@ void check_cumulative_dist() {
                    (2 * pow(sensor_displacement, 2)));
   delta_theta_right =
       (delta_v_mm_right > 0) ? reference_theta_right : -reference_theta_right;
+  */
+  delta_theta_left =
+      get_delta_theta(delta_u_mm_left, delta_v_mm_left, sensor_displacement);
+  delta_theta_right =
+      get_delta_theta(delta_u_mm_right, delta_v_mm_right, sensor_displacement);
 
   total_theta_left = total_theta_left + delta_theta_left;
   total_theta_right = total_theta_right + delta_theta_right;
@@ -244,8 +257,9 @@ void rover_rotate(float theta_reqd) {
     motorrotate(rightmotorcontrol, motor2);
 
     if ((millis() - last_print) > 1000) {
-      Serial.println("Total_theta: (" +
-                     String(total_theta_left) +","+String(total_theta_right) + ")|Average: "+String((total_theta_left+total_theta_right)/2));
+      Serial.println("Total_theta: (" + String(total_theta_left) + "," +
+                     String(total_theta_right) + ")|Average: " +
+                     String((total_theta_left + total_theta_right) / 2));
       Serial.println("Current theta error " + String(current_theta_error) +
                      "Prev theta error " + String(prev_theta_error));
       Serial.println("Left motor control " + String(leftmotorcontrol) +
