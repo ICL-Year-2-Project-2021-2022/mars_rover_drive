@@ -8,6 +8,16 @@ Important to note that we use mm for distances and radians for angles
 #include <SPI.h>
 #include <math.h>
 
+struct velocities_class{
+  float linear_velocity;
+  float angular_velocity;
+} velocities;
+
+struct motors{
+  int left_motor;
+  int right_motor;
+} motorcontrol;
+
 unsigned long last_print;
 
 void setup() {
@@ -41,6 +51,23 @@ void setup() {
     while (1)
       ;
   }
+}
+
+void robot_move(float q_reqd, float p_reqd, float phi_reqd){
+
+}
+// contorls velocities
+velocities_class outer_loop(float q_reqd, float p_reqd, float phi_reqd){
+  float velocity_reqd = distance_loop;
+  float angular_velocity_reqd = theta_loop;
+  
+  return velocities;
+}
+// controls velocities
+motors inner_loop(float velocity_reqd, float angular_velocity_reqd){
+  motorcontrol.left_motor = ;
+  motorcontrol.right_motor =;
+  return motorcontrol;
 }
 
 void loop() {
