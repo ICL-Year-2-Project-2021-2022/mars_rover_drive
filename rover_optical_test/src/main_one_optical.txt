@@ -230,7 +230,7 @@ byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
 
 void loop()
 {
- #if 0
+ #if 1
 /*
     if(movementflag){
 

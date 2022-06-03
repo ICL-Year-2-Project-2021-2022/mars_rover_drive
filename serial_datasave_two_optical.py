@@ -46,8 +46,8 @@ def read_serial_data_and_clean(serial):
         else:
             line_data = serial_line.decode(encoding='UTF-8').splitlines()[0].split(",") 
             line_data = [time.time()] + [str(element) for element in line_data]
-            line_data[1] = int(line_data[1], 2)
-            line_data[2] = int(line_data[2], 2)
+            #line_data[1] = int(line_data[1], 2)
+            #line_data[2] = int(line_data[2], 2)
             if len(line_data) >= 2:
                 clean_data.append(line_data)
                 

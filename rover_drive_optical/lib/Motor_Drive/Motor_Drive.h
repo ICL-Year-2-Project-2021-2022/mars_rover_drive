@@ -23,6 +23,8 @@ extern Robojax_L298N_DC_motor robot;
 
 float maxlimit(float max, float input);
 
-int motor_profile(int preadj_speed);
+int motor_profile(float preadj_speed);
 
 void motorrotate(int speed, int motor_no);
+
+void check_cumulative_dist();

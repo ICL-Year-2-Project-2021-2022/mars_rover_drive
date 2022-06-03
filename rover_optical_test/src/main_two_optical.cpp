@@ -303,9 +303,9 @@ void loop() {
   total_y1_right = total_y1_right + distance_y_right;
 
   // Serial.print('\n');
-  Serial.print(md_left.squal, BIN);
+  Serial.print(md_left.squal);
   Serial.print(",");
-  Serial.print(md_right.squal, BIN);
+  Serial.print(md_right.squal);
   Serial.print(",");
   // Serial.println("Distance_x = " + String(total_x));
   Serial.print(distance_x_left);

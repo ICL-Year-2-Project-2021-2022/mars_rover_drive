@@ -86,8 +86,8 @@ int address_cal_value_right = 1;
 const int test_runs = 6; // Values must be at least as much as number of runs
 float cal_values_right[test_runs];
 float cal_values_left[test_runs];
-const float distances[test_runs] = [50,50,30,30,10,10]; // List of distances for calibration tests
-const float direction[test_runs] = ['F','B','F','B','F','B']; // Only F & B are allow - not error checked so be careful; Corresponds to distances set above
+const float distances[test_runs] = {50,50,30,30,10,10}; // List of distances for calibration tests
+const float direction[test_runs] = {'F','B','F','B','F','B'}; // Only F & B are allow - not error checked so be careful; Corresponds to distances set above
 
 void set_left_optical_cs(bool isLeft) {
   PIN_MOUSECAM_CS = isLeft ? PIN_MOUSECAM_CS_LEFT : PIN_MOUSECAM_CS_RIGHT;
@@ -239,12 +239,13 @@ void calibrate_optical_sensors() {
     unsigned long waitForThirty = millis();
     while (!Serial.available()) {
       delay(50);
-        if (Serial.available() > 0) {   // read the incoming byte:
-            Serial.println("PRINTING:" + String(Serial.available()));            
+        if (Serial.available() > 0) {   // read the incoming byte:         
             char incomingChar = Serial.read();
             if (incomingChar == 'N' || incomingChar == 'n') {
                 Serial.println("Calibraton aborted. Rover will be using past calibration values.");
                 EEPROM_readAnything(0,calibration_values);
+                Serial.println("LEFT CAL VAL USED:" + String(calibration_values.au_2_mm_left));
+                Serial.println("RIGHT CAL VAL USED:" + String(calibration_values.au_2_mm_right));
                 return; 
             }
             else {
@@ -255,6 +256,8 @@ void calibrate_optical_sensors() {
         if ((millis() - waitForThirty) > 30000) {
             Serial.println("Timed-out. Rover will be using past calibration values.");
             EEPROM_readAnything(0,calibration_values);
+            Serial.println("LEFT CAL VAL USED:" + String(calibration_values.au_2_mm_left));
+            Serial.println("RIGHT CAL VAL USED:" + String(calibration_values.au_2_mm_right));
             return;
     }
     }
@@ -263,9 +266,9 @@ void calibrate_optical_sensors() {
     
     for (int j=0; j < test_runs; j++) {
 
-        String direction = (direction[j] == 'F') ? "FORWARD" : "BACKWARD";
+        String direction_to_print = (direction[j] == 'F') ? "FORWARD" : "BACKWARD";
 
-        Serial.println("Move Rover " + direction + " " + String(distances[j]) + " cm. Once completed, press any key.");
+        Serial.println("Move Rover " + direction_to_print + " " + String(distances[j]) + " cm. Once completed, press any key.");
 
         while (!Serial.available()) {
 
@@ -340,6 +343,8 @@ void calibrate_optical_sensors() {
                 calibration_values.au_2_mm_left = average_left_values;
                 calibration_values.au_2_mm_right = average_right_values;
                 EEPROM_writeAnything(0, calibration_values);
+                Serial.println("LEFT CAL VAL STORED:" + String(calibration_values.au_2_mm_left));
+                Serial.println("RIGHT CAL VAL STORED:" + String(calibration_values.au_2_mm_right));
                 validResponse = true;
             }
             else {
