@@ -82,6 +82,13 @@ volatile int xydat[2];
 int address_cal_value_left = 0;
 int address_cal_value_right = 1;
 
+//Calibration test bench arrays:
+const int test_runs = 6; // Values must be at least as much as number of runs
+float cal_values_right[test_runs];
+float cal_values_left[test_runs];
+const float distances[test_runs] = [50,50,30,30,10,10]; // List of distances for calibration tests
+const float direction[test_runs] = ['F','B','F','B','F','B']; // Only F & B are allow - not error checked so be careful; Corresponds to distances set above
+
 void set_left_optical_cs(bool isLeft) {
   PIN_MOUSECAM_CS = isLeft ? PIN_MOUSECAM_CS_LEFT : PIN_MOUSECAM_CS_RIGHT;
 }
@@ -202,15 +209,30 @@ int mousecam_frame_capture(byte* pdata) {
   return ret;
 }
 
-float au_2_mm_left;
-float au_2_mm_right;
 
-void set_from_EEPROM() {
-    au_2_mm_left = EEPROM.read(address_cal_value_left);
-    au_2_mm_right = EEPROM.read(address_cal_value_right);
-    Serial.println("AU_TO_MM_RIGHT: " + String(au_2_mm_right));
-    Serial.println("AU_TO_MM_RIGHT: " + String(au_2_mm_left));
+template <class T> int EEPROM_writeAnything(int ee, const T& value)
+{
+    const byte* p = (const byte*)(const void*)&value;
+    unsigned int i;
+    for (i = 0; i < sizeof(value); i++)
+          EEPROM.write(ee++, *p++);
+    return i;
 }
+
+template <class T> int EEPROM_readAnything(int ee, T& value)
+{
+    byte* p = (byte*)(void*)&value;
+    unsigned int i;
+    for (i = 0; i < sizeof(value); i++)
+          *p++ = EEPROM.read(ee++);
+    return i;
+}
+
+struct config_t
+{
+    float au_2_mm_left;
+    float au_2_mm_right;
+} calibration_values;
 
 void calibrate_optical_sensors() {
     Serial.println("Starting Calibration. If previous values to be used, wait for 30 seconds or press 'N'. Otherwise press any other button.");
@@ -222,7 +244,7 @@ void calibrate_optical_sensors() {
             char incomingChar = Serial.read();
             if (incomingChar == 'N' || incomingChar == 'n') {
                 Serial.println("Calibraton aborted. Rover will be using past calibration values.");
-                set_from_EEPROM();
+                EEPROM_readAnything(0,calibration_values);
                 return; 
             }
             else {
@@ -232,19 +254,20 @@ void calibrate_optical_sensors() {
 
         if ((millis() - waitForThirty) > 30000) {
             Serial.println("Timed-out. Rover will be using past calibration values.");
-            set_from_EEPROM();
+            EEPROM_readAnything(0,calibration_values);
             return;
     }
     }
 
     Serial.println("Calibration process has started.");
-
-    float cal_values_right[5];
-    float cal_values_left[5];
     
-    Serial.println("Move Rover FORWARD 50cm. Once completed, press any key.");
+    for (int j=0; j < test_runs; j++) {
 
-    while (!Serial.available()) {
+        String direction = (direction[j] == 'F') ? "FORWARD" : "BACKWARD";
+
+        Serial.println("Move Rover " + direction + " " + String(distances[j]) + " cm. Once completed, press any key.");
+
+        while (!Serial.available()) {
 
         MD md_left;
         MD md_right;
@@ -269,15 +292,15 @@ void calibrate_optical_sensors() {
         total_x1_right = total_x1_right + distance_x_right;
         total_y1_right = total_y1_right + distance_y_right;
         
+        }
 
-    }
     char incomingChar = Serial.read();
 
-
-    cal_values_left[0] = total_y1_left/500;
-    cal_values_right[0] = total_y1_right/500;
+    cal_values_left[j] = abs(total_y1_left)/(distances[j]*10);
+    cal_values_right[j] = abs(total_y1_right)/(distances[j]*10);
     Serial.println("CAL VALUE LEFT: " + String(cal_values_left[0]));
     Serial.println("CAL VALUE RIGHT: " + String(cal_values_right[0]));
+
     distance_x_left = 0;
     distance_y_left = 0;
     distance_x_right = 0;
@@ -286,237 +309,19 @@ void calibrate_optical_sensors() {
     total_y1_left = 0;
     total_x1_right = 0;
     total_y1_right = 0;
-
-    Serial.println("Move Rover BACKWARDS 50cm. Once completed, press any key.");
-
-    while (!Serial.available()) {
-
-        MD md_left;
-        MD md_right;
-
-        set_left_optical_cs(true);
-        mousecam_read_motion(&md_left);
-        delay(10);
-
-        set_left_optical_cs(false);
-        mousecam_read_motion(&md_right);
-        delay(10);
-
-        distance_x_left = convTwosComp(md_left.dx);
-        distance_y_left = convTwosComp(md_left.dy);
-
-        distance_x_right = convTwosComp(md_right.dx);
-        distance_y_right = convTwosComp(md_right.dy);
-
-        total_x1_left = total_x1_left + distance_x_left;
-        total_y1_left = total_y1_left + distance_y_left;
-
-        total_x1_right = total_x1_right + distance_x_right;
-        total_y1_right = total_y1_right + distance_y_right;
 
     }
-    
-    incomingChar = Serial.read();
-
-    cal_values_left[1] = abs(total_y1_left)/500;
-    cal_values_right[1] = abs(total_y1_right)/500;
-    Serial.println("CAL VALUE LEFT: " + String(cal_values_left[1]));
-    Serial.println("CAL VALUE RIGHT: " + String(cal_values_right[1]));
-    distance_x_left = 0;
-    distance_y_left = 0;
-    distance_x_right = 0;
-    distance_y_right = 0;
-    total_x1_left = 0;
-    total_y1_left = 0;
-    total_x1_right = 0;
-    total_y1_right = 0;
-
-    Serial.println("Move Rover FORWARD 30cm. Once completed, press any key.");
-
-    while (!Serial.available()) {
-
-        MD md_left;
-        MD md_right;
-
-        set_left_optical_cs(true);
-        mousecam_read_motion(&md_left);
-        delay(10);
-
-        set_left_optical_cs(false);
-        mousecam_read_motion(&md_right);
-        delay(10);
-
-        distance_x_left = convTwosComp(md_left.dx);
-        distance_y_left = convTwosComp(md_left.dy);
-
-        distance_x_right = convTwosComp(md_right.dx);
-        distance_y_right = convTwosComp(md_right.dy);
-
-        total_x1_left = total_x1_left + distance_x_left;
-        total_y1_left = total_y1_left + distance_y_left;
-
-        total_x1_right = total_x1_right + distance_x_right;
-        total_y1_right = total_y1_right + distance_y_right;
-
-    }
-
-    incomingChar = Serial.read();
-
-    cal_values_left[2] = total_y1_left/300;
-    cal_values_right[2] = total_y1_right/300;
-    Serial.println("CAL VALUE LEFT: " + String(cal_values_left[2]));
-    Serial.println("CAL VALUE RIGHT: " + String(cal_values_right[2]));
-    distance_x_left = 0;
-    distance_y_left = 0;
-    distance_x_right = 0;
-    distance_y_right = 0;
-    total_x1_left = 0;
-    total_y1_left = 0;
-    total_x1_right = 0;
-    total_y1_right = 0;
-
-    Serial.println("Move Rover BACKWARDS 30cm. Once completed, press any key.");
-
-    while (!Serial.available()) {
-
-        MD md_left;
-        MD md_right;
-
-        set_left_optical_cs(true);
-        mousecam_read_motion(&md_left);
-        delay(10);
-
-        set_left_optical_cs(false);
-        mousecam_read_motion(&md_right);
-        delay(10);
-
-        distance_x_left = convTwosComp(md_left.dx);
-        distance_y_left = convTwosComp(md_left.dy);
-
-        distance_x_right = convTwosComp(md_right.dx);
-        distance_y_right = convTwosComp(md_right.dy);
-
-        total_x1_left = total_x1_left + distance_x_left;
-        total_y1_left = total_y1_left + distance_y_left;
-
-        total_x1_right = total_x1_right + distance_x_right;
-        total_y1_right = total_y1_right + distance_y_right;
-
-    }
-
-    incomingChar = Serial.read();
-
-    cal_values_left[3] = abs(total_y1_left)/300;
-    cal_values_right[3] = abs(total_y1_right)/300;
-    Serial.println("CAL VALUE LEFT: " + String(cal_values_left[3]));
-    Serial.println("CAL VALUE RIGHT: " + String(cal_values_right[3]));
-    distance_x_left = 0;
-    distance_y_left = 0;
-    distance_x_right = 0;
-    distance_y_right = 0;
-    total_x1_left = 0;
-    total_y1_left = 0;
-    total_x1_right = 0;
-    total_y1_right = 0;
-
-    Serial.println("Move Rover FORWARD 10cm. Once completed, press any key.");
-
-    while (!Serial.available()) {
-
-        MD md_left;
-        MD md_right;
-
-        set_left_optical_cs(true);
-        mousecam_read_motion(&md_left);
-        delay(10);
-
-        set_left_optical_cs(false);
-        mousecam_read_motion(&md_right);
-        delay(10);
-
-        distance_x_left = convTwosComp(md_left.dx);
-        distance_y_left = convTwosComp(md_left.dy);
-
-        distance_x_right = convTwosComp(md_right.dx);
-        distance_y_right = convTwosComp(md_right.dy);
-
-        total_x1_left = total_x1_left + distance_x_left;
-        total_y1_left = total_y1_left + distance_y_left;
-
-        total_x1_right = total_x1_right + distance_x_right;
-        total_y1_right = total_y1_right + distance_y_right;
-
-    }
-
-    incomingChar = Serial.read();
-
-    cal_values_left[4] = total_y1_left/100;
-    cal_values_right[4] = total_y1_right/100;
-    Serial.println("CAL VALUE LEFT: " + String(cal_values_left[4]));
-    Serial.println("CAL VALUE RIGHT: " + String(cal_values_right[4]));
-    distance_x_left = 0;
-    distance_y_left = 0;
-    distance_x_right = 0;
-    distance_y_right = 0;
-    total_x1_left = 0;
-    total_y1_left = 0;
-    total_x1_right = 0;
-    total_y1_right = 0;
-
-    Serial.println("Move Rover BACKWARDS 10cm. Once completed, press any key.");
-
-    while (!Serial.available()) {
-
-        MD md_left;
-        MD md_right;
-
-        set_left_optical_cs(true);
-        mousecam_read_motion(&md_left);
-        delay(10);
-
-        set_left_optical_cs(false);
-        mousecam_read_motion(&md_right);
-        delay(10);
-
-        distance_x_left = convTwosComp(md_left.dx);
-        distance_y_left = convTwosComp(md_left.dy);
-
-        distance_x_right = convTwosComp(md_right.dx);
-        distance_y_right = convTwosComp(md_right.dy);
-
-        total_x1_left = total_x1_left + distance_x_left;
-        total_y1_left = total_y1_left + distance_y_left;
-
-        total_x1_right = total_x1_right + distance_x_right;
-        total_y1_right = total_y1_right + distance_y_right;
-
-    }
-
-    incomingChar = Serial.read();
-
-    cal_values_left[5] = abs(total_y1_left)/100;
-    cal_values_right[5] = abs(total_y1_right)/100;
-    Serial.println("CAL VALUE LEFT: " + String(cal_values_left[5]));
-    Serial.println("CAL VALUE RIGHT: " + String(cal_values_right[5]));
-    distance_x_left = 0;
-    distance_y_left = 0;
-    distance_x_right = 0;
-    distance_y_right = 0;
-    total_x1_left = 0;
-    total_y1_left = 0;
-    total_x1_right = 0;
-    total_y1_right = 0;
 
     float array_left_sum = 0;
     float array_right_sum = 0;
 
-    for (int i=0;i < 6;i++){
+    for (int i=0;i < test_runs;i++){
         array_left_sum += cal_values_left[i];
         array_right_sum += cal_values_right[i];
     }
     
-    float average_right_values = array_right_sum/6;
-    float average_left_values = array_left_sum/6;
+    float average_right_values = array_right_sum/test_runs;
+    float average_left_values = array_left_sum/test_runs;
 
     Serial.println("Right Calibration value attained: " + String(average_right_values));
     Serial.println("Left Calibration value attained: " + String(average_left_values));
@@ -530,12 +335,11 @@ void calibrate_optical_sensors() {
             char incomingChar = Serial.read();
             if (incomingChar == 'N' || incomingChar == 'n') {
                 calibrate_optical_sensors();
-                validResponse = true;
             }
             else if (incomingChar == 'Y' || incomingChar == 'y') {
-                EEPROM.write(address_cal_value_left, average_left_values);
-                EEPROM.write(address_cal_value_right,average_right_values);
-                Serial.println("Written for left: " + String(EEPROM.read(address_cal_value_left)));
+                calibration_values.au_2_mm_left = average_left_values;
+                calibration_values.au_2_mm_right = average_right_values;
+                EEPROM_writeAnything(0, calibration_values);
                 validResponse = true;
             }
             else {
