@@ -9,12 +9,9 @@ Important to note that we use mm for distances and radians for angles
 #include <math.h>
 
 // max errors
-const float max_dist_error = 0.01;
-const float max_turn_error = 0.01;
-const float max_theta_error = 0.01;
-
-const int min_motor_val = 20;
-const int max_motor_val = 100;
+const float max_dist_error = 0.03;
+const float max_turn_error = 0.03;
+const float max_theta_error = 0.03;
 
 unsigned long last_print;
 
@@ -82,8 +79,10 @@ void check_cumulative_dist() {
   total_theta_left = total_theta_left + delta_theta_left;
   total_theta_right = total_theta_right + delta_theta_right;
 
-  // Serial.println("(Total_Theta_Left, Total_Theta_Right):(" + String(total_theta_left) + "," + String(total_theta_right) + ")"); 
-  //Serial.println("(Delta_r,Delta_l):(" + String(delta_r) + "," + String(delta_l) + ")"); Serial.print("Total_Thetha
+  // Serial.println("(Total_Theta_Left, Total_Theta_Right):(" +
+  // String(total_theta_left) + "," + String(total_theta_right) + ")");
+  // Serial.println("(Delta_r,Delta_l):(" + String(delta_r) + "," +
+  // String(delta_l) + ")"); Serial.print("Total_Thetha
   //: " + String(total_theta)); Serial.println("| Thetha: " +
   // String(delta_theta));
 }
@@ -120,43 +119,6 @@ bool enable_pid(float dist_reqd,
   return false;
 }
 
-// limiting function
-float maxlimit(float max, float input) {
-  float out;
-  if (input > max) {
-    out = max;
-  } else {
-    out = input;
-  }
-  return out;
-}
-
-// motor profiling function ie sets limits for the minimum motor power
-int motor_profile(int preadj_speed) {
-  float adj_speed = 0;
-  if (preadj_speed > 0) {
-    adj_speed = (preadj_speed / 100.0) * (max_motor_val - min_motor_val) +
-                min_motor_val;
-  } else if (preadj_speed < 0) {
-    adj_speed = (preadj_speed / 100.0) * (max_motor_val - min_motor_val) -
-                min_motor_val;
-  }
-  return (int)adj_speed;
-  /*return (x == 0) ? 0
-         : (x > 0)
-             ? (x / 100) * (max_motor_val - min_motor_val) + min_motor_val
-             : (x / 100) * (max_motor_val - min_motor_val) - min_motor_val;*/
-}
-
-// motor function (to remove need for CCW and CW -> -100 to 100)
-void motorrotate(int speed, int motor_no) {
-  if (speed > 0) {
-    robot.rotate(motor_no, motor_profile(speed), CCW);
-  } else {
-    robot.rotate(motor_no, motor_profile(abs(speed)), CW);
-  }
-}
-
 // distance PD loop
 float R_pid_loop(float dist_error, float prev_dist_error) {
   float dist_derivative = dist_error - prev_dist_error;
@@ -170,7 +132,7 @@ float R_pid_loop(float dist_error, float prev_dist_error) {
 // angle PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error) {
   float theta_derivative = theta_error - prev_theta_error;
-  float kp_theta = 20;  // change
+  float kp_theta = 25;  // change
   float kd_theta = 0;
   float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
   return theta_pid;
@@ -230,6 +192,14 @@ void rover_straight(float dist_reqd) {
       last_print = millis();
     }
   }
+  robot.brake(motor1);
+  robot.brake(motor2);
+}
+
+float modulo_2pi(float input) {
+  int divd = floor(input / (2 * PI));
+  float rem = input - float(divd * 2 * PI);
+  return rem;
 }
 
 void rover_rotate(float theta_reqd) {
@@ -255,7 +225,11 @@ void rover_rotate(float theta_reqd) {
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
 
-    if ((millis() - last_print) > 1000) {
+    Serial.println(String(modulo_2pi(total_theta_left)) + "," +
+                   String(modulo_2pi(total_theta_right)) + "," +
+                   String(current_theta_error));
+
+    /*if ((millis() - last_print) > 1000) {
       Serial.println("Total_theta: (" + String(total_theta_left) + "," +
                      String(total_theta_right) + ")|Average: " +
                      String((total_theta_left + total_theta_right) / 2));
@@ -265,10 +239,12 @@ void rover_rotate(float theta_reqd) {
                      ", Right motor control " + String(rightmotorcontrol));
       Serial.println("\n");
       last_print = millis();
-    }
+    }*/
 
     delay(50);
   }
+  robot.brake(motor1);
+  robot.brake(motor2);
 }
 
 /*
@@ -360,6 +336,8 @@ void setup() {
 void loop() {
   // rover_straight(500);  // move 500mm units
   rover_rotate(PI / 2);
+  delay(3000);
+  rover_straight(300);
   delay(3000);
   // motor_control(0, PI / 2); // probably need radians -> maybe we convert for
   // the commands
