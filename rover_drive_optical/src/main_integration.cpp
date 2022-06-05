@@ -23,7 +23,7 @@ void IRAM_ATTR onTimer() {
   web_trigger = false;
   portEXIT_CRITICAL_ISR(&timerMux);
 }
-
+/*
 struct velocities_class {
   float linear_velocity;
   float angular_velocity;
@@ -33,7 +33,7 @@ struct motors {
   int left_motor;
   int right_motor;
 } motorcontrol;
-
+*/
 unsigned long last_print;
 
 void setup() {
