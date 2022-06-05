@@ -23,7 +23,7 @@ void IRAM_ATTR onTimer() {
   web_trigger = false;
   portEXIT_CRITICAL_ISR(&timerMux);
 }
-
+/*
 struct velocities_class {
   float linear_velocity;
   float angular_velocity;
@@ -33,7 +33,7 @@ struct motors {
   int left_motor;
   int right_motor;
 } motorcontrol;
-
+*/
 unsigned long last_print;
 
 void setup() {
@@ -74,7 +74,7 @@ void setup() {
   }
 }
 
-void robot_move(float q_reqd, float p_reqd, float phi_reqd) {}
+/*void robot_move(float q_reqd, float p_reqd, float phi_reqd) {}
 // contorls velocities
 velocities_class outer_loop(float q_reqd, float p_reqd, float phi_reqd) {
   float velocity_reqd = distance_loop;
@@ -87,11 +87,11 @@ motors inner_loop(float velocity_reqd, float angular_velocity_reqd) {
   motorcontrol.left_motor = ;
   motorcontrol.right_motor = ;
   return motorcontrol;
-}
+}*/
 
 void loop() {
   if (drive_trigger) {
-    drive_control();
+    rover_move();
     update_directions();
     portENTER_CRITICAL_ISR(&timerMux);
     drive_trigger = false;
