@@ -1,10 +1,4 @@
-#include <Motor_Drive.h>
-#include <Optical_Flow.h>
-
-// max errors
-const float max_dist_error = 0.03;
-const float max_turn_error = 0.03;
-const float max_theta_error = 0.03;
+#include <pid_loops.h>
 
 // distance PD loop
 float R_pid_loop(float dist_error, float prev_dist_error) {
@@ -69,7 +63,7 @@ void rover_straight(float dist_reqd) {
 
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
-
+    /*
     if ((millis() - last_print) > 1000) {
       Serial.println("Current dist error " + String(current_dist_error) +
                      "Prev dist error " + String(prev_dist_error));
@@ -77,7 +71,7 @@ void rover_straight(float dist_reqd) {
                      ", Right motor control " + String(rightmotorcontrol));
       Serial.println("\n");
       last_print = millis();
-    }
+    }*/
   }
   robot.brake(motor1);
   robot.brake(motor2);

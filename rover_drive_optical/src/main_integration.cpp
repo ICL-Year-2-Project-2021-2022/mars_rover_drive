@@ -3,16 +3,16 @@ Important to note that we use mm for distances and radians for angles
 */
 
 #include <Arduino.h>
-#include <Motor_Drive.h>
-#include <Optical_Flow.h>
 #include <SPI.h>
 #include <math.h>
+#include <pid_loops.h>
 
 volatile bool drive_trigger;
 volatile bool web_trigger;
 
-// Inspired by https://techtutorialsx.com/2017/10/07/esp32-arduino-timer-interrupts/
-// and https://github.com/espressif/arduino-esp32/blob/master/libraries/ESP32/examples/Timer/RepeatTimer/RepeatTimer.ino
+// Inspired by
+// https://techtutorialsx.com/2017/10/07/esp32-arduino-timer-interrupts/ and
+// https://github.com/espressif/arduino-esp32/blob/master/libraries/ESP32/examples/Timer/RepeatTimer/RepeatTimer.ino
 hw_timer_t* timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -74,6 +74,7 @@ void setup() {
   }
 }
 
+/*
 void robot_move(float q_reqd, float p_reqd, float phi_reqd) {}
 // contorls velocities
 velocities_class outer_loop(float q_reqd, float p_reqd, float phi_reqd) {
@@ -88,18 +89,23 @@ motors inner_loop(float velocity_reqd, float angular_velocity_reqd) {
   motorcontrol.right_motor = ;
   return motorcontrol;
 }
+*/
 
 void loop() {
   if (drive_trigger) {
-    drive_control();
-    update_directions();
+    rover_straight(500);  // move 500mm units
+    rover_rotate(PI / 2);
+    delay(3000);
+
+    // drive_control();
+    // update_directions();
     portENTER_CRITICAL_ISR(&timerMux);
     drive_trigger = false;
     web_trigger = true;
     portEXIT_CRITICAL_ISR(&timerMux);
   }
   if (web_trigger) {
-    web_send();
+    // web_send();
     portENTER_CRITICAL_ISR(&timerMux);
     web_trigger = false;
     portEXIT_CRITICAL_ISR(&timerMux);
