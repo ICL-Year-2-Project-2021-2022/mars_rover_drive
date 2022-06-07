@@ -15,7 +15,7 @@ float maxlimit(float max, float input) {
   return out;
 }
 
-#if 0
+#if 1
 // motor profiling function ie sets limits for the minimum motor power
 int motor_profile(int preadj_speed) {
   float adj_speed = 0;

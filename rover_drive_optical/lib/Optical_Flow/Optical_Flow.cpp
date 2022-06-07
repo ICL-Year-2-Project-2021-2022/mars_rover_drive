@@ -113,11 +113,11 @@ void check_cumulative_dist() {
 
   set_left_optical_cs(true);
   mousecam_read_motion(&md_left);
-  delay(100);
+  delay(1);
 
   set_left_optical_cs(false);
   mousecam_read_motion(&md_right);
-  delay(100);
+  delay(1);
 
   // measured changes in r and l for left
   delta_u_au_left = convTwosComp(md_left.dx);
@@ -157,7 +157,7 @@ void check_cumulative_dist() {
       get_delta_theta(delta_u_mm_left, delta_v_mm_left, sensor_displacement);
   delta_theta_right =
       get_delta_theta(delta_u_mm_right, delta_v_mm_right, sensor_displacement);
-
+  //Serial.println("deltatheta "+String(delta_theta_left) + "," + String(delta_theta_right));
   total_theta_left = total_theta_left + delta_theta_left;
   total_theta_right = total_theta_right + delta_theta_right;
 

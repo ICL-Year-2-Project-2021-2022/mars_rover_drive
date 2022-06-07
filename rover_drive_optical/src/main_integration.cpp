@@ -99,6 +99,7 @@ void loop() {
 
     // drive_control();
     // update_directions();
+    // radar_read();
     portENTER_CRITICAL_ISR(&timerMux);
     drive_trigger = false;
     web_trigger = true;

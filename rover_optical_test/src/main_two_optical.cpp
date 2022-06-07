@@ -207,7 +207,7 @@ void setup() {
   SPI.setDataMode(SPI_MODE3);
   SPI.setBitOrder(MSBFIRST);
 
-  Serial.begin(9600);
+  Serial.begin(57600);
 
   set_left_optical_cs(true);
   if (mousecam_init() == -1) {
@@ -232,35 +232,58 @@ char asciiart(int k) {
 byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
 
 void loop() {
-#if 0
-/*
-    if(movementflag){
+#if 1
+  /*
+      if(movementflag){
 
-    tdistance = tdistance + convTwosComp(xydat[0]);
-    Serial.println("Distance = " + String(tdistance));
-    movementflag=0;
-    delay(3);
-    }
-
-  */
-  // if enabled this section grabs frames and outputs them as ascii art
-
-  if(mousecam_frame_capture(frame)==0)
-  {
-    int i,j,k;
-    for(i=0, k=0; i<ADNS3080_PIXELS_Y; i++)
-    {
-      for(j=0; j<ADNS3080_PIXELS_X; j++, k++)
-      {
-        //Serial.print(asciiart(frame[k]));
-        Serial.print(frame[k]);
-        Serial.print(' ');
+      tdistance = tdistance + convTwosComp(xydat[0]);
+      Serial.println("Distance = " + String(tdistance));
+      movementflag=0;
+      delay(3);
       }
-      Serial.println();
+
+    */
+  // if enabled this section grabs frames and outputs them as ascii art
+  /*
+    if(mousecam_frame_capture(frame)==0)
+    {
+      int i,j,k;
+      for(i=0, k=0; i<ADNS3080_PIXELS_Y; i++)
+      {
+        for(j=0; j<ADNS3080_PIXELS_X; j++, k++)
+        {
+          //Serial.print(asciiart(frame[k]));
+          Serial.print(frame[k]);
+          Serial.print(' ');
+        }
+        Serial.println();
+      }
+    }
+    Serial.println();
+  */
+  set_left_optical_cs(true);
+  if (mousecam_frame_capture(frame) == 0) {
+    Serial.println("A");
+    int i, j, k;
+    for (i = 0, k = 0; i < ADNS3080_PIXELS_Y; i++) {
+      for (j = 0; j < ADNS3080_PIXELS_X; j++, k++) {
+        Serial.println(frame[k]);
+      }
     }
   }
-  Serial.println();
-  delay(250);
+  delay(20);
+
+  set_left_optical_cs(false);
+  if (mousecam_frame_capture(frame) == 0) {
+    Serial.println("B");
+    int i, j, k;
+    for (i = 0, k = 0; i < ADNS3080_PIXELS_Y; i++) {
+      for (j = 0; j < ADNS3080_PIXELS_X; j++, k++) {
+        Serial.println(frame[k]);
+      }
+    }
+  }
+  delay(200);
 
 #else
 

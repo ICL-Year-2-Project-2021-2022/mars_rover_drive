@@ -9,9 +9,8 @@ Important to note that we use mm for distances and radians for angles
 #include <math.h>
 
 // max errors
-const float max_dist_error = 0.03;
-const float max_turn_error = 0.03;
-const float max_theta_error = 0.03;
+const float max_dist_error = 0.05;
+const float max_theta_error = 0.05;
 
 unsigned long last_print;
 
@@ -33,7 +32,7 @@ unsigned long last_print;
 // distance PD loop
 float R_pid_loop(float dist_error, float prev_dist_error) {
   float dist_derivative = dist_error - prev_dist_error;
-  float kp_dist = 10;
+  float kp_dist = 2;
   float kd_dist = 0;
   float R_pid = kp_dist * dist_error + kd_dist * dist_derivative;
   R_pid = maxlimit(100, R_pid);
@@ -52,7 +51,7 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
   float turn_derivative = turn_error - prev_turn_error;
-  float kp_turn = 0.0;
+  float kp_turn = 0.5;
   float kd_turn = 0;
   float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
   return turn_pid;
@@ -61,7 +60,7 @@ float turn_pid_loop(float turn_error, float prev_turn_error) {
 // offset PD loop
 float offset_pid_loop(float offset_error, float prev_offset_error) {
   float offset_derivative = offset_error - prev_offset_error;
-  float kp_offset = 0.;
+  float kp_offset = 0.5;
   float kd_offset = 0;
   float offset_pid = kp_offset * offset_error + kd_offset * offset_derivative;
   return offset_pid;
@@ -72,7 +71,7 @@ float offset_pid_loop(float offset_error, float prev_offset_error) {
 void rover_straight(float dist_reqd) {
   float current_dist_error = dist_reqd;
   float current_turn_error = 0;
-  while (current_dist_error > max_dist_error) {
+  while (abs(current_dist_error) > max_dist_error) {
     check_cumulative_dist();
     float prev_dist_error = current_dist_error;
     current_dist_error =
@@ -82,7 +81,7 @@ void rover_straight(float dist_reqd) {
     current_turn_error = delta_v_mm_right - delta_v_mm_left;
     // condition to exit loop
     if (abs(current_dist_error) < max_dist_error) {
-      return;
+      break;
     }
 
     float R_pid = R_pid_loop(current_dist_error, prev_dist_error);
@@ -94,9 +93,9 @@ void rover_straight(float dist_reqd) {
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
 
-    if ((millis() - last_print) > 1000) {
+    if ((millis() - last_print) > 100) {
       Serial.println("Current dist error " + String(current_dist_error) +
-                     "Prev dist error " + String(prev_dist_error));
+                     ", Prev dist error " + String(prev_dist_error));
       Serial.println("Left motor control " + String(leftmotorcontrol) +
                      ", Right motor control " + String(rightmotorcontrol));
       Serial.println("\n");
@@ -105,6 +104,7 @@ void rover_straight(float dist_reqd) {
   }
   robot.brake(motor1);
   robot.brake(motor2);
+  Serial.println("rover straight has finished");
 }
 
 float modulo_2pi(float input) {
@@ -116,8 +116,9 @@ float modulo_2pi(float input) {
 void rover_rotate(float theta_reqd) {
   float current_theta_error = theta_reqd;
   float current_offset_error = 0;
-  while (current_theta_error > max_theta_error) {
+  while (abs(current_theta_error) > max_theta_error) {
     check_cumulative_dist();
+
     float prev_theta_error = current_theta_error;
     current_theta_error =
         current_theta_error - (delta_theta_left + delta_theta_right) / 2;
@@ -126,7 +127,7 @@ void rover_rotate(float theta_reqd) {
     current_offset_error = delta_v_mm_right + delta_v_mm_left;
     // condition to exit loop
     if (abs(current_theta_error) < max_theta_error) {
-      return;
+      break;
     }
     float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
     float offset_pid = offset_pid_loop(current_offset_error, prev_offset_error);
@@ -136,9 +137,8 @@ void rover_rotate(float theta_reqd) {
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
 
-    Serial.println(String(modulo_2pi(total_theta_left)) + "," +
-                   String(modulo_2pi(total_theta_right)) + "," +
-                   String(current_theta_error));
+    Serial.println(String(total_theta_left) + "," + String(total_theta_right) +
+                   "," + String(current_theta_error));
 
     /*if ((millis() - last_print) > 1000) {
       Serial.println("Total_theta: (" + String(total_theta_left) + "," +
@@ -152,10 +152,11 @@ void rover_rotate(float theta_reqd) {
       last_print = millis();
     }*/
 
-    delay(50);
+    delay(200);
   }
   robot.brake(motor1);
   robot.brake(motor2);
+  // Serial.println("Theta pid finished");
 }
 
 /*
@@ -246,11 +247,12 @@ void setup() {
 
 void loop() {
   // rover_straight(500);  // move 500mm units
-  //rover_rotate(PI / 2);
-  //delay(3000);
   rover_straight(300);
   delay(3000);
-  // motor_control(0, PI / 2); // probably need radians -> maybe we convert for
-  // the commands
+  rover_straight(-300);
+  delay(3000);
+  // rover_rotate(PI / 2);
   // delay(3000);
+  //   motor_control(0, PI / 2); // probably need radians -> maybe we convert
+  //   for the commands delay(3000);
 }
