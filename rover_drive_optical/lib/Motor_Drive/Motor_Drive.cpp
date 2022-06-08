@@ -7,8 +7,12 @@ Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA, IN3, IN4, ENB, CHB);
 // limiting function
 float maxlimit(float max, float input) {
   float out;
-  if (input > max) {
-    out = max;
+  if (abs(input) > max) {
+    if (input > 0) {
+      out = max;
+    } else {
+      out = -max;
+    }
   } else {
     out = input;
   }

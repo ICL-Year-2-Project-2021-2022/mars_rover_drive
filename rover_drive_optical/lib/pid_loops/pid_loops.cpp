@@ -26,7 +26,7 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
   float turn_derivative = turn_error - prev_turn_error;
-  float kp_turn = 0.0;
+  float kp_turn = 0;
   float kd_turn = 0;
   float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
   return turn_pid;
@@ -47,7 +47,7 @@ void rover_straight(float dist_reqd) {
   float current_dist_error = dist_reqd;
   float current_integral_dist_error = 0;
   float current_turn_error = 0;
-  while (current_dist_error > max_dist_error) {
+  while (abs(current_dist_error) > max_dist_error) {
     check_cumulative_dist();
     float prev_dist_error = current_dist_error;
     current_dist_error =
@@ -94,7 +94,7 @@ float modulo_2pi(float input) {
 void rover_rotate(float theta_reqd) {
   float current_theta_error = theta_reqd;
   float current_offset_error = 0;
-  while (current_theta_error > max_theta_error) {
+  while (abs(current_theta_error) > max_theta_error) {
     check_cumulative_dist();
     float prev_theta_error = current_theta_error;
     current_theta_error =

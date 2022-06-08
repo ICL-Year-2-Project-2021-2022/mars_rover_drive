@@ -93,18 +93,19 @@ void rover_straight(float dist_reqd) {
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
 
-    if ((millis() - last_print) > 100) {
+    /*if ((millis() - last_print) > 100) {
       Serial.println("Current dist error " + String(current_dist_error) +
                      ", Prev dist error " + String(prev_dist_error));
       Serial.println("Left motor control " + String(leftmotorcontrol) +
                      ", Right motor control " + String(rightmotorcontrol));
       Serial.println("\n");
       last_print = millis();
-    }
+    }*/
   }
   robot.brake(motor1);
   robot.brake(motor2);
-  Serial.println("rover straight has finished");
+  //Serial.println("rover straight has finished");
+  delay(50);
 }
 
 float modulo_2pi(float input) {
@@ -251,6 +252,12 @@ void loop() {
   delay(3000);
   rover_straight(-300);
   delay(3000);
+  //motorrotate(-10, motor1);
+  //motorrotate(-10, motor2);
+  //delay(5000);
+  //robot.brake(motor1);
+  //robot.brake(motor2);
+  //delay(20000);
   // rover_rotate(PI / 2);
   // delay(3000);
   //   motor_control(0, PI / 2); // probably need radians -> maybe we convert

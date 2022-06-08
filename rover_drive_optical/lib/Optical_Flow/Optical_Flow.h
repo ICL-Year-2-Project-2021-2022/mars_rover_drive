@@ -119,3 +119,5 @@ void mousecam_read_motion(struct MD* p);
 int mousecam_frame_capture(byte* pdata);
 
 char asciiart(int k);
+
+void check_cumulative_dist();
