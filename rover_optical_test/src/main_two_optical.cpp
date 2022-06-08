@@ -232,7 +232,7 @@ char asciiart(int k) {
 byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
 
 void loop() {
-#if 1
+#if 0
   /*
       if(movementflag){
 

@@ -322,8 +322,8 @@ void calibrate_optical_sensors() {
 
     cal_values_left[j] = abs(total_y1_left) / (distances[j] * 10);
     cal_values_right[j] = abs(total_y1_right) / (distances[j] * 10);
-    Serial.println("CAL VALUE LEFT: " + String(cal_values_left[0]));
-    Serial.println("CAL VALUE RIGHT: " + String(cal_values_right[0]));
+    Serial.println("CAL VALUE LEFT: " + String(cal_values_left[j]));
+    Serial.println("CAL VALUE RIGHT: " + String(cal_values_right[j]));
 
     distance_x_left = 0;
     distance_y_left = 0;
@@ -430,9 +430,9 @@ void calibrate_optical_sensors() {
 
     total_theta_left = total_theta_left + theta_left;
     total_theta_right = total_theta_right + theta_right;
-    Serial.println(
-        "(Theta Left, Theta Right):" + String(round(total_theta_left)) + "," +
-        String(round(total_theta_right)) + ")");
+    // Serial.println(
+    //    "(Theta Left, Theta Right):" + String(round(total_theta_left)) + "," +
+    //    String(round(total_theta_right)) + ")");
   }
   Serial.println("Final (Theta Left, Theta Right):(" +
                  String(round(total_theta_left)) + "," +

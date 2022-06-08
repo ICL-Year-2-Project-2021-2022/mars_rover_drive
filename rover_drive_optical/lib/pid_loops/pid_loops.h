@@ -8,7 +8,7 @@ const float max_turn_error = 0.03;
 const float max_theta_error = 0.03;
 
 // distance PD loop
-float R_pid_loop(float dist_error, float prev_dist_error);
+float R_pid_loop(float dist_error, float prev_dist_error, float integral_error);
 // angular correction PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error);
 

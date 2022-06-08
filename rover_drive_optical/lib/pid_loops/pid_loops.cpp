@@ -1,11 +1,15 @@
 #include <pid_loops.h>
 
 // distance PD loop
-float R_pid_loop(float dist_error, float prev_dist_error) {
+float R_pid_loop(float dist_error,
+                 float prev_dist_error,
+                 float integral_error) {
   float dist_derivative = dist_error - prev_dist_error;
   float kp_dist = 10;
+  float ki_dist = 0;
   float kd_dist = 0;
-  float R_pid = kp_dist * dist_error + kd_dist * dist_derivative;
+  float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
+                ki_dist * integral_error;
   R_pid = maxlimit(100, R_pid);
   return R_pid;
 }
@@ -41,12 +45,15 @@ float offset_pid_loop(float offset_error, float prev_offset_error) {
 // takes distance in mm
 void rover_straight(float dist_reqd) {
   float current_dist_error = dist_reqd;
+  float current_integral_dist_error = 0;
   float current_turn_error = 0;
   while (current_dist_error > max_dist_error) {
     check_cumulative_dist();
     float prev_dist_error = current_dist_error;
     current_dist_error =
         current_dist_error - (delta_v_mm_left + delta_v_mm_right) / 2;
+    current_integral_dist_error =
+        current_integral_dist_error + current_dist_error;
 
     float prev_turn_error = current_turn_error;
     current_turn_error = delta_v_mm_right - delta_v_mm_left;
@@ -55,7 +62,8 @@ void rover_straight(float dist_reqd) {
       return;
     }
 
-    float R_pid = R_pid_loop(current_dist_error, prev_dist_error);
+    float R_pid = R_pid_loop(current_dist_error, prev_dist_error,
+                             current_integral_dist_error);
     float turn_pid = turn_pid_loop(current_turn_error, prev_turn_error);
 
     float leftmotorcontrol = maxlimit(100, R_pid + turn_pid);
