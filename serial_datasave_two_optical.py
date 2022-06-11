@@ -9,7 +9,7 @@ import time
 #import pandas as pd
  
 portPath = "COM3"       # Must match value shown on Arduino IDE
-baud = 9600                     # Must match Arduino baud rate
+baud = 57600                    # Must match Arduino baud rate
 timeout = 5                       # Seconds
 filename = "../data_optical/two_optical/testfile_" + str(datetime.datetime.now().strftime("%y_%m_%d_%H_%M_%S_%p")) + ".csv"
 max_num_readings = 32000

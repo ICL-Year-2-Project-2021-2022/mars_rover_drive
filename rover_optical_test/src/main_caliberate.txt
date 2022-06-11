@@ -504,7 +504,7 @@ void setup() {
   // Init EEPROM
   EEPROM.begin(EEPROM_SIZE);
 
-  Serial.begin(9600);
+  Serial.begin(57600);
 
   set_left_optical_cs(true);
   if (mousecam_init() == -1) {
