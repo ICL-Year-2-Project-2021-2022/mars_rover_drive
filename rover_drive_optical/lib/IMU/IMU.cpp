@@ -68,17 +68,20 @@ mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
     break;
   }
 
+total_z = 0
+
   float get_total_y(float time) {
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
     //by Euler's formulae we get the following:
-    float acceleration_angle_x = atan((a.acceleration.y/16384.0)/sqrt(pow((a.acceleration.x/16384.0),2) + pow((a.acceleration.z/16384.0),2)))*rad_to_deg;
-    float acceleration_angle_y = atan(-1*(a.acceleration.x/16384.0)/sqrt(pow((a.acceleration.y/16384.0),2) + pow((a.acceleration.z/16384.0),2)))*rad_to_deg;
-    float gx = g.acceleration.x * rad_to_deg;
-    float gy = g.acceleration.y * rad_to_deg;
+    //float acceleration_angle_x = atan((a.acceleration.y/16384.0)/sqrt(pow((a.acceleration.x/16384.0),2) + pow((a.acceleration.z/16384.0),2)))*rad_to_deg;
+    //float acceleration_angle_y = atan(-1*(a.acceleration.x/16384.0)/sqrt(pow((a.acceleration.y/16384.0),2) + pow((a.acceleration.z/16384.0),2)))*rad_to_deg;
+    //float gx = g.acceleration.x * rad_to_deg;
+    //float gy = g.acceleration.y * rad_to_deg;
     //x axis angle
     //we apply a complementary filter to low pass the gryoscope and high pass the accelerometer
-    float total_x = 0.98 * (total_x + gx * time) + 0.02 * acceleration_angle_x;
-    float total_y = 0.98 * (total_y + gy * time) + 0.02 * acceleration_angle_y;
+    //float total_x = 0.98 * (total_x + gx * time) + 0.02 * acceleration_angle_x;
+    //float total_y = 0.98 * (total_y + gy * time) + 0.02 * acceleration_angle_y;
+    float total_z = total_z + g.acceleration.z * rad_to_deg * time;
     return total_y;
   }
