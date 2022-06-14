@@ -1,18 +1,5 @@
 #include <Optical_Flow.h>
 
-#define LED_PIN     27
-#define NUM_LEDS    4 // 150 LEDs in the full strip
-#define PATTERN_LEN 1
-#define BRIGHTNESS  255
-#define LED_TYPE    WS2811
-#define COLOR_ORDER GRB
-
-#define UPDATES_PER_SECOND 0
-
-
-CRGB leds[NUM_LEDS];
-CRGB pattern[PATTERN_LEN] = { CRGB::White };
-
 // Chip select pin is set by set_optical_cs() default is left
 int PIN_MOUSECAM_CS = PIN_MOUSECAM_CS_LEFT;
 

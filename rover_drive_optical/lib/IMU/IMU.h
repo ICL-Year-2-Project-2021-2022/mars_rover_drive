@@ -2,8 +2,10 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
-Adafruit_MPU6050 mpu;
+extern Adafruit_MPU6050 mpu2;
 
-float rad_to_deg = 180/3.141592654;
+extern float rad_to_deg;
 
 float get_total_y(float time);
+
+void imu_setup();
