@@ -207,7 +207,7 @@ void setup() {
   SPI.setDataMode(SPI_MODE3);
   SPI.setBitOrder(MSBFIRST);
 
-  Serial.begin(57600);
+  Serial.begin(9600);
 
   set_left_optical_cs(true);
   if (mousecam_init() == -1) {
