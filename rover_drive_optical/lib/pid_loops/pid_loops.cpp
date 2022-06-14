@@ -191,3 +191,38 @@ void motor_control(float dist_reqd, float theta_reqd) {
     delay(100);
   }
 }*/
+
+
+//BELOW IS AN IMU APPROACH TO PID ANGLE CONTROL
+
+
+
+/*
+float integralSum = 0;
+float lastError = 0;
+
+float modWrapper(float degrees) {
+  while(degrees > 180.0) {
+    degrees -= 360;
+  }
+  while(degrees < -180) {
+    degrees += 360;
+  }
+  return degrees;
+}
+
+float PIDControl(float reference, float state) {
+  float error = modWrapper(reference - state);
+  float integralSum += error * millis() * 1000;
+  float derivative = (error - lastError) / (millis() * 1000);
+  float lastError = error;
+  float output = (error * Kp) + (derivative * Kd)  + (integralSum * Ki);
+  return output;
+}
+
+void rover_rotate(float referenceAngle) {
+  float power = PIDControl(referenceAngle, get_total_y(millis()));
+  float leftmotorcontrol = maxlimit(100, power);
+  float rightmotorcontrol = maxlimit(100, -power);
+  Serial.println("IMU Experiments")
+} */
