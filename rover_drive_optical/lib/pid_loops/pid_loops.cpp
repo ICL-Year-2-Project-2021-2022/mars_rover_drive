@@ -221,8 +221,10 @@ float PIDControl(float reference, float state) {
 }
 
 void rover_rotate(float referenceAngle) {
-  float power = PIDControl(referenceAngle, get_total_y(millis()));
-  float leftmotorcontrol = maxlimit(100, power);
-  float rightmotorcontrol = maxlimit(100, -power);
-  Serial.println("IMU Experiments")
+  while (abs(lastError) > max_theta_error) {
+    float power = PIDControl(referenceAngle, get_total_y(millis()));
+    float leftmotorcontrol = maxlimit(100, power);
+    float rightmotorcontrol = maxlimit(100, -power);
+    Serial.println("IMU Experiments");
+  }
 } */
