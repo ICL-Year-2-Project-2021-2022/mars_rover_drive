@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <pid_loops.h>
+#include <FastLED.h>
 
 
 void setup() {
