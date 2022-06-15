@@ -1,6 +1,7 @@
 #include <Arduino.h>
-#include "SPI.h"
 #include <FastLED.h>
+#include <queue>
+#include "SPI.h"
 
 // these pins may be different on different boards
 
@@ -50,22 +51,29 @@
 #define ADNS3080_PRODUCT_ID_VAL 0x17
 
 // LED library defs
-#define LED_PIN     5
-#define NUM_LEDS    4
+#define LED_PIN 4
+#define NUM_LEDS 4
 #define PATTERN_LEN 4
-#define BRIGHTNESS  255
-#define LED_TYPE    WS2811
+#define BRIGHTNESS 255
+#define LED_TYPE WS2811
 #define COLOR_ORDER GRB
+
+#define UPDATES_PER_SECOND 1
+
+std::queue<int> SqualQ;
+int SqualQTotal = 0;
+int SqualQTotalSquares = 0;
+
 CRGB leds[NUM_LEDS];
+CRGB pattern[PATTERN_LEN] = {CRGB::White, CRGB::White, CRGB::White,
+                             CRGB::White};
 
-#define UPDATES_PER_SECOND 0
-
-
-CRGB leds[NUM_LEDS];
-CRGB pattern[PATTERN_LEN] = { CRGB::White, CRGB::White, CRGB::White, CRGB::White };
+int color_index;
 
 int total_x = 0;
 int total_y = 0;
+
+int poppy;
 
 int total_x1 = 0;
 int total_y1 = 0;
@@ -78,6 +86,9 @@ int b = 0;
 
 int distance_x = 0;
 int distance_y = 0;
+
+float mean;
+float variance;
 
 volatile byte movementflag = 0;
 volatile int xydat[2];
@@ -198,24 +209,77 @@ int mousecam_frame_capture(byte* pdata) {
   return ret;
 }
 
-void ChangePalettePeriodically()
-{
-    uint8_t secondHand = (millis() / 1000) % 60;
-    static uint8_t lastSecond = 160;
-    
-    if( lastSecond != secondHand) {
-        lastSecond = secondHand;
-        if( secondHand ==  0)  { pattern[PATTERN_LEN] = { CRGB::White, CRGB::White, CRGB::White, CRGB::White }; }
-        if( secondHand == 20)  { pattern[PATTERN_LEN] = { CRGB::Red, CRGB::Red, CRGB::Red, CRGB::Red };  }
-        if( secondHand == 40)  { pattern[PATTERN_LEN] = { CRGB::Orange, CRGB::Orange, CRGB::Orange, CRGB::Orange }; } 
-        if( secondHand == 60)  { pattern[PATTERN_LEN] = { CRGB::Yellow, CRGB::Yellow, CRGB::Yellow, CRGB::Yellow }; }
-        if( secondHand == 80)  { pattern[PATTERN_LEN] = { CRGB::Green, CRGB::Green, CRGB::Green, CRGB::Green }; }
-        if( secondHand == 100)  { pattern[PATTERN_LEN] = { CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue };  }
-        if( secondHand == 120)  { pattern[PATTERN_LEN] = { CRGB::Indigo, CRGB::Indigo, CRGB::Indigo, CRGB::Indigo }; }
-        if( secondHand == 140)  { pattern[PATTERN_LEN] = { CRGB::Violet, CRGB::Violet, CRGB::Violet, CRGB::Violet }; }
-    }
-}
+const TProgmemPalette16 spectrumTest PROGMEM = {CRGB::Red, CRGB::Red, CRGB::Red,
+                                                CRGB::Red};
 
+void ChangePalettePeriodically() {
+  uint8_t secondHand = (millis() / 1000) % 160;
+  static uint8_t lastSecond = 160;
+
+  if (lastSecond != secondHand) {
+    lastSecond = secondHand;
+    if (secondHand == 0) {
+      color_index = color_index + 1;
+      pattern[0] = CRGB::White;
+      pattern[1] = CRGB::White;
+      pattern[2] = CRGB::White;
+      pattern[3] = CRGB::White;
+    }
+    if (secondHand == 20) {
+      color_index = color_index + 1;
+      pattern[0] = CRGB::Red;
+      pattern[1] = CRGB::Red;
+      pattern[2] = CRGB::Red;
+      pattern[3] = CRGB::Red;
+    }
+    if (secondHand == 40) {
+      color_index = color_index + 1;
+      pattern[0] = CRGB::Orange;
+      pattern[1] = CRGB::Orange;
+      pattern[2] = CRGB::Orange;
+      pattern[3] = CRGB::Orange;
+    }
+    if (secondHand == 60) {
+      color_index = color_index + 1;
+      pattern[0] = CRGB::Yellow;
+      pattern[1] = CRGB::Yellow;
+      pattern[2] = CRGB::Yellow;
+      pattern[3] = CRGB::Yellow;
+    }
+    if (secondHand == 80) {
+      color_index = color_index + 1;
+      pattern[0] = CRGB::Green;
+      pattern[1] = CRGB::Green;
+      pattern[2] = CRGB::Green;
+      pattern[3] = CRGB::Green;
+    }
+    if (secondHand == 100) {
+      color_index = color_index + 1;
+      pattern[0] = CRGB::Blue;
+      pattern[1] = CRGB::Blue;
+      pattern[2] = CRGB::Blue;
+      pattern[2] = CRGB::Blue;
+    }
+    if (secondHand == 120) {
+      color_index = color_index + 1;
+      pattern[0] = CRGB::Indigo;
+      pattern[1] = CRGB::Indigo;
+      pattern[2] = CRGB::Indigo;
+      pattern[2] = CRGB::Indigo;
+    }
+    if (secondHand == 140) {
+      color_index = color_index + 1;
+      pattern[0] = CRGB::Violet;
+      pattern[1] = CRGB::Violet;
+      pattern[2] = CRGB::Violet;
+      pattern[2] = CRGB::Violet;
+    }
+  }
+      pattern[0] = CRGB::White;
+      pattern[1] = CRGB::White;
+      pattern[2] = CRGB::White;
+      pattern[3] = CRGB::White;
+}
 
 void setup() {
   pinMode(PIN_SS, OUTPUT);
@@ -236,8 +300,9 @@ void setup() {
       ;
   }
 
-  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
-  FastLED.setBrightness(  BRIGHTNESS );
+  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS)
+      .setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(BRIGHTNESS);
 }
 
 char asciiart(int k) {
@@ -248,12 +313,13 @@ char asciiart(int k) {
 byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
 
 void loop() {
-static uint8_t startIndex = 0;
-for( int i =0; i < NUM_LEDS; i++) {
+  ChangePalettePeriodically();
+  static uint8_t startIndex = 0;
+  for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = pattern[(PATTERN_LEN - startIndex + i) % PATTERN_LEN];
-}
-FastLED.show();
-#if 1
+  }
+  FastLED.show();
+#if 0
   /*
       if(movementflag){
 
@@ -322,7 +388,26 @@ FastLED.show();
   total_y = total_y1 / 157;
 
   // Serial.print('\n');
-  Serial.print(md.squal);  // try printf
+  Serial.println(String(color_index) + "," + String(md.squal));  // try printf
+  /*
+  if(SqualQ.size() >= 100) {
+    poppy = SqualQ.front();
+    SqualQ.pop();
+    SqualQTotal =  SqualQTotal - poppy;
+    SqualQTotalSquares = SqualQTotalSquares - pow(poppy, 2);
+    mean = float(SqualQTotal)/100;
+    variance = float(SqualQTotalSquares)/99 - pow(SqualQTotal,2)/(99*100);
+    Serial.println("------------------------ATTENTION-------------------");
+    Serial.println(mean);
+    //Serial.println(SqualQTotalSquares/100);
+    //Serial.println(sqrt(variance));
+  }
+
+  SqualQTotal = SqualQTotal + md.squal;
+  SqualQTotalSquares = SqualQTotalSquares + pow(md.squal, 2);
+  SqualQ.push(md.squal);
+
+
   Serial.print(",");
   // Serial.println("Distance_x = " + String(total_x));
   Serial.print(distance_x);
@@ -333,7 +418,7 @@ FastLED.show();
   Serial.print(",");
   Serial.print(total_x1);
   Serial.print(",");
-  Serial.println(total_y1);
+  Serial.println(total_y1);*/
 
   delay(100);
 

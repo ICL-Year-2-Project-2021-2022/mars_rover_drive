@@ -61,7 +61,6 @@ CRGB leds[NUM_LEDS];
 #define UPDATES_PER_SECOND 0
 
 
-CRGB leds[NUM_LEDS];
 CRGB pattern[PATTERN_LEN] = { CRGB::White, CRGB::White, CRGB::White, CRGB::White };
 
 int total_x = 0;
@@ -234,7 +233,7 @@ for( int i =0; i < NUM_LEDS; i++) {
     leds[i] = pattern[(PATTERN_LEN - startIndex + i) % PATTERN_LEN];
 }
 FastLED.show();
-#if 1
+#if 0
   /*
       if(movementflag){
 
