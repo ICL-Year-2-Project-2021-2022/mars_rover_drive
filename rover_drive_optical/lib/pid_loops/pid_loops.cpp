@@ -1,3 +1,4 @@
+#include <IMU.h>
 #include <pid_loops.h>
 
 // distance PD loop
@@ -5,9 +6,9 @@ float R_pid_loop(float dist_error,
                  float prev_dist_error,
                  float integral_error) {
   float dist_derivative = dist_error - prev_dist_error;
-  float kp_dist = 8;
+  float kp_dist = 3;
   float ki_dist = 0;
-  float kd_dist = 5;
+  float kd_dist = 0;
   float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
                 ki_dist * integral_error;
   R_pid = maxlimit(100, R_pid);
@@ -17,7 +18,7 @@ float R_pid_loop(float dist_error,
 // angular correction PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error) {
   float theta_derivative = theta_error - prev_theta_error;
-  float kp_theta = 25;  // change
+  float kp_theta = 5;  // change
   float kd_theta = 0;
   float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
   return theta_pid;
@@ -47,8 +48,11 @@ void rover_straight(float dist_reqd) {
   float current_dist_error = dist_reqd;
   float current_integral_dist_error = 0;
   float current_turn_error = 0;
+  // reset_imu_angle();
   while (abs(current_dist_error) > max_dist_error) {
     check_cumulative_dist();
+    check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
+                    total_theta_right);
     float prev_dist_error = current_dist_error;
     current_dist_error =
         current_dist_error - (delta_v_mm_left + delta_v_mm_right) / 2;
@@ -69,11 +73,14 @@ void rover_straight(float dist_reqd) {
     float leftmotorcontrol = maxlimit(100, R_pid + turn_pid);
     float rightmotorcontrol = maxlimit(100, R_pid - turn_pid);
 
-    Serial.println("Left motor control: " + String(leftmotorcontrol));
-    Serial.println("Right motor control: " + String(rightmotorcontrol));
+    // Serial.println("Left motor control: " + String(leftmotorcontrol));
+    // Serial.println("Right motor control: " + String(rightmotorcontrol));
 
     motorrotate(leftmotorcontrol, motor1);
     motorrotate(rightmotorcontrol, motor2);
+
+    Serial.println(String(modulo_2pi(total_theta_left)) + "," +
+                   String(modulo_2pi(total_theta_right)));
     /*
     if ((millis() - last_print) > 1000) {
       Serial.println("Current dist error " + String(current_dist_error) +
@@ -97,8 +104,12 @@ float modulo_2pi(float input) {
 void rover_rotate(float theta_reqd) {
   float current_theta_error = theta_reqd;
   float current_offset_error = 0;
+  // reset_imu_angle();
   while (abs(current_theta_error) > max_theta_error) {
     check_cumulative_dist();
+    check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
+                    total_theta_right);
+
     float prev_theta_error = current_theta_error;
     current_theta_error =
         current_theta_error - (delta_theta_left + delta_theta_right) / 2;
@@ -192,10 +203,7 @@ void motor_control(float dist_reqd, float theta_reqd) {
   }
 }*/
 
-
-//BELOW IS AN IMU APPROACH TO PID ANGLE CONTROL
-
-
+// BELOW IS AN IMU APPROACH TO PID ANGLE CONTROL
 
 /*
 float integralSum = 0;
