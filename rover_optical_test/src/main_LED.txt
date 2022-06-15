@@ -1,8 +1,8 @@
 #include <FastLED.h>
 
-#define LED_PIN     4
-#define NUM_LEDS    1 // 150 LEDs in the full strip
-#define PATTERN_LEN 1
+#define LED_PIN     12
+#define NUM_LEDS    4 // 150 LEDs in the full strip
+#define PATTERN_LEN 4
 #define BRIGHTNESS  255
 #define LED_TYPE    WS2811
 #define COLOR_ORDER GRB
@@ -13,7 +13,7 @@
 
 
 CRGB leds[NUM_LEDS];
-CRGB pattern[PATTERN_LEN] = { CRGB::White };
+CRGB pattern[PATTERN_LEN] = { CRGB::White,CRGB::White,CRGB::White,CRGB::White };
 
 void setup() {
     delay( 3000 ); // power-up safety delay

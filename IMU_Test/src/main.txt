@@ -1,0 +1,48 @@
+// Basic demo for accelerometer readings from Adafruit MPU6050
+
+// ESP32 Guide: https://RandomNerdTutorials.com/esp32-mpu-6050-accelerometer-gyroscope-arduino/
+// ESP8266 Guide: https://RandomNerdTutorials.com/esp8266-nodemcu-mpu-6050-accelerometer-gyroscope-arduino/
+// Arduino Guide: https://RandomNerdTutorials.com/arduino-mpu-6050-accelerometer-gyroscope/
+
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include <SoftwareWire.h>
+
+const int MPU_ADDR = 0x68; // I2C address of the MPU-6050
+int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+
+Adafruit_MPU6050 mpu;
+
+SoftwareWire myWire(13, 12);
+
+void setup(void) {
+   Serial.begin(115200); // sda, scl, clock speed
+   myWire.beginTransmission(MPU_ADDR);
+   myWire.write(0x6B);  // PWR_MGMT_1 register
+   myWire.write(0);     // set to zero (wakes up the MPU−6050)
+   myWire.endTransmission(true);
+   Serial.println("Setup complete");
+}
+
+void loop() {
+   myWire.beginTransmission(MPU_ADDR);
+   myWire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+   myWire.endTransmission(true);
+   myWire.beginTransmission(MPU_ADDR);
+   myWire.requestFrom(MPU_ADDR, 14, true); // request a total of 14 registers
+   AcX = myWire.read();
+   AcY = myWire.read(); // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+   AcZ = myWire.read(); // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+   Tmp = myWire.read(); // 0x41 (TEMP_OUT_H) &  0x42 (TEMP_OUT_L)
+   GyX = myWire.read(); // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
+   GyY = myWire.read(); // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+   GyZ = myWire.read(); // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+
+   Serial.print("AcX: ");
+   Serial.print(AcX); Serial.print(" , AcY:");
+   Serial.print(AcY); Serial.print(" , AcZ:");
+   Serial.print(AcZ); Serial.print(" , GyX:");
+   Serial.print(GyX); Serial.print(" , GyY:");
+   Serial.print(GyY); Serial.print(" , GyZ:");
+   Serial.print(GyZ); Serial.print("\n");
+}

@@ -1,17 +1,18 @@
 #include <Arduino.h>
-#include "SPI.h"
+#include <FastLED.h>
+#include <SPI.h>
 
 // these pins may be different on different boards
 
 #define PIN_SS_LEFT 5
-#define PIN_SS_RIGHT 22
+#define PIN_SS_RIGHT 13
 #define PIN_MISO 19
 #define PIN_MOSI 23
 #define PIN_SCK 18
 
 #define PIN_MOUSECAM_RESET 35
 #define PIN_MOUSECAM_CS_LEFT 5
-#define PIN_MOUSECAM_CS_RIGHT 22
+#define PIN_MOUSECAM_CS_RIGHT 13
 
 #define ADNS3080_PIXELS_X 30
 #define ADNS3080_PIXELS_Y 30
@@ -49,6 +50,20 @@
 #define ADNS3080_SROM_LOAD 0x60
 
 #define ADNS3080_PRODUCT_ID_VAL 0x17
+
+#define LED_PIN 12
+#define NUM_LEDS 4  // 4 LEDs in the full strip
+#define PATTERN_LEN 1
+#define BRIGHTNESS 255
+#define LED_TYPE WS2811
+#define COLOR_ORDER GRB
+
+// If you want the pattern to move across the strip, change this to
+// a number greater than zero
+#define UPDATES_PER_SECOND 0
+
+CRGB leds[NUM_LEDS];
+CRGB pattern[PATTERN_LEN] = {CRGB::White};
 
 // Chip select pin is set by set_optical_cs() default is left
 int PIN_MOUSECAM_CS = PIN_MOUSECAM_CS_LEFT;
@@ -208,6 +223,21 @@ void setup() {
   SPI.setBitOrder(MSBFIRST);
 
   Serial.begin(57600);
+
+  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS)
+      .setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(BRIGHTNESS);
+
+  // Start at the first LED
+  static uint8_t startIndex = 0;
+
+  // Apply the pattern repeating across all LEDs
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = pattern[(PATTERN_LEN - startIndex + i) % PATTERN_LEN];
+  }
+
+  // Apply the colors to the LED strip
+  FastLED.show();
 
   set_left_optical_cs(true);
   if (mousecam_init() == -1) {
