@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
+#include <IMU.h>
 #include <SPI.h>
 
 // these pins may be different on different boards
@@ -92,6 +93,8 @@ float theta_right = 0;
 
 float total_theta_left = 0;
 float total_theta_right = 0;
+
+#include <IMU.h>
 
 volatile byte movementflag = 0;
 volatile int xydat[2];
@@ -373,6 +376,7 @@ void loop() {
   total_x1_right = total_x1_right + distance_x_right;
   total_y1_right = total_y1_right + distance_y_right;
 
+#if 1
   theta_left =
       get_delta_theta(distance_x_left / au_2_mm_left,
                       distance_y_left / au_2_mm_left, sensor_displacement);
@@ -382,6 +386,13 @@ void loop() {
 
   total_theta_left = total_theta_left + theta_left;
   total_theta_right = total_theta_right + theta_right;
+
+#elif 0
+  check_imu_angle(theta_left, theta_right, total_theta_left, total_theta_right);
+#else
+  check_imu_angle_naive(theta_left, theta_right, total_theta_left,
+                        total_theta_right);
+#endif
 
   Serial.print(md_left.squal);
   Serial.print(",");
@@ -410,6 +421,7 @@ void loop() {
   Serial.print(theta_right);
   Serial.print(",");
   Serial.print(total_theta_right);
+  Serial.print(",");
 
   delay(100);
 

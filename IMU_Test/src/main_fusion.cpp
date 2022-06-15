@@ -1,7 +1,7 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
-#include "SensorFusion.h"
+#include <SensorFusion.h>
 SF fusion;
 
 float gx, gy, gz, ax, ay, az, mx, my, mz, temp;
@@ -23,7 +23,7 @@ void setup(void) {
   Serial.println("Adafruit MPU6050 test!");
 
   // Try to initialize!
-  if (mpu.begin()) {
+  if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
       delay(10);
@@ -114,7 +114,11 @@ void loop() {
   // is suggested if there isn't the mag
   fusion.MahonyUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
                       a.acceleration.y, a.acceleration.z,
-                      temp.temperature);  // else use the magwick
+                      deltat);  // else use the magwick
+
+  fusion.MadgwickUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
+                      a.acceleration.y, a.acceleration.z,
+                      deltat);
 
   roll = fusion.getRoll();
   pitch = fusion.getPitch();
