@@ -1,7 +1,7 @@
 #include <FastLED.h>
 
 #define LED_PIN     4
-#define NUM_LEDS    4 // 150 LEDs in the full strip
+#define NUM_LEDS    1 // 150 LEDs in the full strip
 #define PATTERN_LEN 1
 #define BRIGHTNESS  255
 #define LED_TYPE    WS2811
