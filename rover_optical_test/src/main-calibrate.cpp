@@ -7,8 +7,8 @@
 
 // these pins may be different on different boards
 
-#define PIN_SS_LEFT 5
-#define PIN_SS_RIGHT 13
+#define PIN_SS_LEFT 13
+#define PIN_SS_RIGHT 5
 #define PIN_MISO 19
 #define PIN_MOSI 23
 #define PIN_SCK 18

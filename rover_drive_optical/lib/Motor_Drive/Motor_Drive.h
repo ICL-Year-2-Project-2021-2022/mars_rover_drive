@@ -16,7 +16,7 @@ const int CW = 1;  // do not change
 #define motor2 2   // do not change
 
 const int min_motor_val = 25;
-const int max_motor_val = 70;
+const int max_motor_val = 45;
 
 // for two motors without debug information // Watch video instruciton for this line: https://youtu.be/2JTMqURJTwg
 extern Robojax_L298N_DC_motor robot;

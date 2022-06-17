@@ -4,8 +4,8 @@
 // optical flow defns
 // these pins may be different on different boards
 
-#define PIN_SS_LEFT 5    // D7
-#define PIN_SS_RIGHT 13  // D3
+#define PIN_SS_LEFT 13    // D7
+#define PIN_SS_RIGHT 5  // D3
 #define PIN_MISO 19      // D5
 #define PIN_MOSI 23      // D2
 #define PIN_SCK 18       // D6
@@ -54,11 +54,11 @@
 // Chip select pin is set by set_optical_cs()
 extern int PIN_MOUSCAM_CS;
 
-const float au_2_mm_left = 7.77;
-const float au_2_mm_right = 7.45;
+const float au_2_mm_left = 6.45f;
+const float au_2_mm_right = 6.64f;
 
 // perpendicular distance from sensor to axis of rotation
-const float sensor_displacement = 130;
+const float sensor_displacement = 120;
 
 extern int delta_u_au_left;
 extern int delta_v_au_left;

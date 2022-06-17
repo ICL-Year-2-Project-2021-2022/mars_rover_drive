@@ -383,33 +383,33 @@ void loop() {
   total_theta_left = total_theta_left + theta_left;
   total_theta_right = total_theta_right + theta_right;
 
-  Serial.print(md_left.squal);
+  Serial.print("md_left.squal: " + String(md_left.squal));
   Serial.print(",");
-  Serial.print(md_right.squal);
-  Serial.print(",");
+  Serial.print("md_right.squal: "   + String(md_right.squal));
+  Serial.print(" distance_x_left: ");
   Serial.print(distance_x_left);
-  Serial.print(",");
+  Serial.print(" distance_y_left: ");
   Serial.print(distance_y_left);
-  Serial.print(",");
+  Serial.print(" total_x1_left: ");
   Serial.print(total_x1_left);
-  Serial.print(",");
+  Serial.print(" total_y1_left: ");
   Serial.print(total_y1_left);
-  Serial.print(",");
-  Serial.print(theta_left);
-  Serial.print(",");
+  Serial.print(" theta_left: ");
+  Serial.println(theta_left);
+  /*Serial.print(" total_theta_left: ");
   Serial.print(total_theta_left);
-  Serial.print(",");
+  Serial.print(" distance_x_right: ");
   Serial.print(distance_x_right);
-  Serial.print(",");
+  Serial.print(" distance_y_right: ");
   Serial.print(distance_y_right);
-  Serial.print(",");
+  Serial.print(" total_x1_right: ");
   Serial.print(total_x1_right);
-  Serial.print(",");
-  Serial.println(total_y1_right);
-  Serial.println(",");
+  Serial.print(" total_y1_right: ");
+  Serial.print(total_y1_right);
+  Serial.print(" ");
   Serial.print(theta_right);
-  Serial.print(",");
-  Serial.print(total_theta_right);
+  Serial.print(" , ");
+  Serial.println(total_theta_right);*/
 
   delay(100);
 

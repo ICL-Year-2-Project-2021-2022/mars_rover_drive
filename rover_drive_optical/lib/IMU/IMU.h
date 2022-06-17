@@ -16,4 +16,5 @@ void reset_imu_angle();
 void check_imu_angle(float& theta_left,
                      float& theta_right,
                      float& total_theta_left,
-                     float& total_theta_right);
+                     float& total_theta_right,
+                     float& deltat);
