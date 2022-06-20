@@ -6,11 +6,11 @@
 // these pins may be different on different boards
 
 #define PIN_SS_LEFT 5
+
 #define PIN_SS_RIGHT 13
 #define PIN_MISO 19
 #define PIN_MOSI 23
 #define PIN_SCK 18
-
 #define PIN_MOUSECAM_RESET 35
 #define PIN_MOUSECAM_CS_LEFT 5
 #define PIN_MOUSECAM_CS_RIGHT 13
@@ -64,7 +64,7 @@
 #define UPDATES_PER_SECOND 0
 
 CRGB leds[NUM_LEDS];
-CRGB pattern[PATTERN_LEN] = {CRGB::White};
+CRGB pattern[PATTERN_LEN] = {CRGB::Red};
 
 // Chip select pin is set by set_optical_cs() default is left
 int PIN_MOUSECAM_CS = PIN_MOUSECAM_CS_LEFT;
