@@ -10,7 +10,7 @@ float R_pid_loop(float dist_error,
     float dist_derivative = dist_error - prev_dist_error;
     float kp_dist = 3;
     float ki_dist = 0;
-    float kd_dist = 0;
+    float kd_dist = 1;
     float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
                   ki_dist * integral_error;
     R_pid = maxlimit(100, R_pid);
@@ -29,7 +29,7 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
     float turn_derivative = turn_error - prev_turn_error;
-    float kp_turn = 0;
+    float kp_turn = 1;
     float kd_turn = 0;
     float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
     return turn_pid;

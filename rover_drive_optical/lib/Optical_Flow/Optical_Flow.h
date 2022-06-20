@@ -54,8 +54,8 @@
 // Chip select pin is set by set_optical_cs()
 extern int PIN_MOUSCAM_CS;
 
-const float au_2_mm_left = 6.45f;
-const float au_2_mm_right = 6.64f;
+const float au_2_mm_left = 5.77f;
+const float au_2_mm_right = 6.04f;
 
 // perpendicular distance from sensor to axis of rotation
 const float sensor_displacement = 120;
