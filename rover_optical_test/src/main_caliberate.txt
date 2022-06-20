@@ -58,7 +58,7 @@
 #define NUM_LEDS 4  // 4 LEDs in the full strip
 #define PATTERN_LEN 1
 #define BRIGHTNESS 255
-#define LED_TYPE WS2811g
+#define LED_TYPE WS2811
 #define COLOR_ORDER GRB
 
 // If you want the pattern to move across the strip, change this to
