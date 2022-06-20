@@ -10,7 +10,7 @@ float R_pid_loop(float dist_error,
     float dist_derivative = dist_error - prev_dist_error;
     float kp_dist = 2.5;
     float ki_dist = 0;
-    float kd_dist = 0;
+    float kd_dist = 2;
     float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
                   ki_dist * integral_error;
     R_pid = maxlimit(100, R_pid);
@@ -38,8 +38,8 @@ float turn_pid_loop(float turn_error, float prev_turn_error) {
 // offset correction PD loop
 float offset_pid_loop(float offset_error, float prev_offset_error) {
     float offset_derivative = offset_error - prev_offset_error;
-    float kp_offset = 0.5;
-    float kd_offset = 0.25;
+    float kp_offset = 0;
+    float kd_offset = 0;
     float offset_pid = kp_offset * offset_error + kd_offset * offset_derivative;
     return offset_pid;
 }
