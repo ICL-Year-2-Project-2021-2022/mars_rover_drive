@@ -7,7 +7,7 @@
 #define COLOR_ORDER GRB
 
 CRGB leds[NUM_LEDS];
-CRGB pattern = CRGB::White;
+CRGB pattern = CRGB::Red;
 
 void led_begin() {
   // led setup
