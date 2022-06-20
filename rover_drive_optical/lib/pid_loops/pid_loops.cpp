@@ -10,7 +10,7 @@ float R_pid_loop(float dist_error,
     float dist_derivative = dist_error - prev_dist_error;
     float kp_dist = 2.5;
     float ki_dist = 0;
-    float kd_dist = 2;
+    float kd_dist = 0;
     float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
                   ki_dist * integral_error;
     R_pid = maxlimit(100, R_pid);
