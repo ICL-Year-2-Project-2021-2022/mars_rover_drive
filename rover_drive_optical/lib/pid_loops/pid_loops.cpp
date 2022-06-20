@@ -8,7 +8,7 @@ float R_pid_loop(float dist_error,
                  float prev_dist_error,
                  float integral_error) {
     float dist_derivative = dist_error - prev_dist_error;
-    float kp_dist = 3;
+    float kp_dist = 2.5;
     float ki_dist = 0;
     float kd_dist = 2;
     float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
@@ -20,8 +20,8 @@ float R_pid_loop(float dist_error,
 // angular correction PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error) {
     float theta_derivative = theta_error - prev_theta_error;
-    float kp_theta = 45;  // change
-    float kd_theta = 0;
+    float kp_theta = 20;  // change
+    float kd_theta = 15;
     float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
     return theta_pid;
 }
@@ -29,8 +29,8 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
     float turn_derivative = turn_error - prev_turn_error;
-    float kp_turn = 3;
-    float kd_turn = 0;
+    float kp_turn = 5;
+    float kd_turn = 2;
     float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
     return turn_pid;
 }
@@ -38,8 +38,8 @@ float turn_pid_loop(float turn_error, float prev_turn_error) {
 // offset correction PD loop
 float offset_pid_loop(float offset_error, float prev_offset_error) {
     float offset_derivative = offset_error - prev_offset_error;
-    float kp_offset = 1;
-    float kd_offset = 0;
+    float kp_offset = 0.5;
+    float kd_offset = 0.25;
     float offset_pid = kp_offset * offset_error + kd_offset * offset_derivative;
     return offset_pid;
 }
@@ -75,12 +75,13 @@ void rover_straight(float dist_reqd) {
                                  current_integral_dist_error);
         float turn_pid = turn_pid_loop(current_turn_error, prev_turn_error);
 
-        float leftmotorcontrol = maxlimit(100, R_pid + turn_pid);
-        float rightmotorcontrol = maxlimit(100, R_pid - turn_pid);
+        float leftmotorcontrol = maxlimit(100, R_pid - turn_pid);
+        float rightmotorcontrol = maxlimit(100, R_pid + turn_pid);
 
 
-        // Serial.println("Left motor control: " + String(leftmotorcontrol));
-        // Serial.println("Right motor control: " + String(rightmotorcontrol));
+        Serial.print("Left motor control: " + String(leftmotorcontrol));
+        Serial.println(", Right motor control: " + String(rightmotorcontrol));
+        Serial.println("Turn pid: "+String(turn_pid));
 
         motorrotate(leftmotorcontrol, motor1);
         motorrotate(rightmotorcontrol, motor2);
@@ -94,7 +95,7 @@ void rover_straight(float dist_reqd) {
           Serial.println("\n");
           last_print = millis();
         }*/
-        Serial.println("abs(current_dist_error)" + String(abs(current_dist_error)) + "" + String(max_dist_error));
+        //Serial.println("abs(current_dist_error)" + String(abs(current_dist_error)) + "" + String(max_dist_error));
         delay(10);
     }
     robot.brake(motor1);
