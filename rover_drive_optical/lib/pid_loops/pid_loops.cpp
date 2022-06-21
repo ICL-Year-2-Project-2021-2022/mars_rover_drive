@@ -20,8 +20,8 @@ float R_pid_loop(float dist_error,
 // angular correction PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error) {
     float theta_derivative = theta_error - prev_theta_error;
-    float kp_theta = 50;  // change
-    float kd_theta = 0;
+    float kp_theta = 20;  // change
+    float kd_theta = 15;
     float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
     return theta_pid;
 }
@@ -30,7 +30,7 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 float turn_pid_loop(float turn_error, float prev_turn_error) {
     float turn_derivative = turn_error - prev_turn_error;
     float kp_turn = 5;
-    float kd_turn = 2;
+    float kd_turn = 3;
     float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
     return turn_pid;
 }
