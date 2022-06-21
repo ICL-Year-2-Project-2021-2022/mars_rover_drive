@@ -4,9 +4,9 @@
 #include <IMU.h>
 
 // max errors
-const float max_dist_error = 0.03;
-const float max_turn_error = 0.03;
-const float max_theta_error = 0.03;
+const float max_dist_error = 0.05;
+const float max_turn_error = 0.05;
+const float max_theta_error = 0.05;
 
 // distance PD loop
 float R_pid_loop(float dist_error, float prev_dist_error, float integral_error);

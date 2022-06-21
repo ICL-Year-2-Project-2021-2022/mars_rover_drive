@@ -1,10 +1,10 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
+#include <SensorFusion.h>
 #include <Wire.h>
-#include "SensorFusion.h"
 SF fusion;
 
-float gx, gy, gz, ax, ay, az, mx, my, mz, temp;
+float gx, gy, gz, ax, ay, az, temp;
 float pitch, roll, yaw;
 float deltat;
 
@@ -23,7 +23,7 @@ void setup(void) {
   Serial.println("Adafruit MPU6050 test!");
 
   // Try to initialize!
-  if (mpu.begin()) {
+  if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
       delay(10);
@@ -31,7 +31,7 @@ void setup(void) {
   }
   Serial.println("MPU6050 Found!");
 
-  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+  mpu.setAccelerometerRange(MPU6050_RANGE_4_G);
   Serial.print("Accelerometer range set to: ");
   switch (mpu.getAccelerometerRange()) {
     case MPU6050_RANGE_2_G:
@@ -64,7 +64,7 @@ void setup(void) {
       break;
   }
 
-  mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
+  mpu.setFilterBandwidth(MPU6050_BAND_94_HZ);
   Serial.print("Filter bandwidth set to: ");
   switch (mpu.getFilterBandwidth()) {
     case MPU6050_BAND_260_HZ:
@@ -114,7 +114,10 @@ void loop() {
   // is suggested if there isn't the mag
   fusion.MahonyUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
                       a.acceleration.y, a.acceleration.z,
-                      temp.temperature);  // else use the magwick
+                      deltat);  // else use the magwick
+
+  // fusion.MadgwickUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
+  //                       a.acceleration.y, a.acceleration.z, deltat);
 
   roll = fusion.getRoll();
   pitch = fusion.getPitch();

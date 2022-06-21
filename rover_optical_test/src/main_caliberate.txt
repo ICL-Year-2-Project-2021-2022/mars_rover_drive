@@ -66,7 +66,7 @@
 #define UPDATES_PER_SECOND 0
 
 CRGB leds[NUM_LEDS];
-CRGB pattern[PATTERN_LEN] = {CRGB::White};
+CRGB pattern[PATTERN_LEN] = {CRGB::Red};
 
 // Chip select pin is set by set_optical_cs() default is left
 int PIN_MOUSECAM_CS = PIN_MOUSECAM_CS_LEFT;
