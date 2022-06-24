@@ -6,8 +6,8 @@
 #define IN1 15 // D12
 #define IN2 2 // D13
 // motor 2 settings
-#define IN3 17 // D8
-#define IN4 16 // D9
+#define IN3 21 // D3
+#define IN4 22 // D4
 #define ENB 4  // D11 this pin must be PWM enabled pin if Arduino board is used
 #define CHB 1
 const int CCW = 2; // do not change
