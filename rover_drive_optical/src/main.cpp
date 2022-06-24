@@ -2,6 +2,7 @@
 #include <IMU.h>
 #include <LED_strip.h>
 #include <pid_loops.h>
+#include <IMU.h>
 
 void setup() {
   Serial.begin(9600);

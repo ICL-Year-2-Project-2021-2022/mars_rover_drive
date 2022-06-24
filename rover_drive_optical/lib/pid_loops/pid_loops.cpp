@@ -27,8 +27,8 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
   float turn_derivative = turn_error - prev_turn_error;
-  float kp_turn = 0;
-  float kd_turn = 0;
+  float kp_turn = 5;
+  float kd_turn = 2;
   float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
   return turn_pid;
 }
@@ -36,8 +36,8 @@ float turn_pid_loop(float turn_error, float prev_turn_error) {
 // offset correction PD loop
 float offset_pid_loop(float offset_error, float prev_offset_error) {
   float offset_derivative = offset_error - prev_offset_error;
-  float kp_offset = 0.;
-  float kd_offset = 0;
+  float kp_offset = 0.5;
+  float kd_offset = 0.25;
   float offset_pid = kp_offset * offset_error + kd_offset * offset_derivative;
   return offset_pid;
 }
@@ -51,8 +51,8 @@ void rover_straight(float dist_reqd) {
   // reset_imu_angle();
   while (abs(current_dist_error) > max_dist_error) {
     check_cumulative_dist();
-    check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
-                    total_theta_right);
+    //check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
+    //                total_theta_right);
     float prev_dist_error = current_dist_error;
     current_dist_error =
         current_dist_error - (delta_v_mm_left + delta_v_mm_right) / 2;
@@ -107,8 +107,8 @@ void rover_rotate(float theta_reqd) {
   // reset_imu_angle();
   while (abs(current_theta_error) > max_theta_error) {
     check_cumulative_dist();
-    check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
-                    total_theta_right);
+    //check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
+    //                total_theta_right);
 
     float prev_theta_error = current_theta_error;
     current_theta_error =

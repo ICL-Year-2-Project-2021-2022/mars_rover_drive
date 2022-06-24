@@ -1,0 +1,33 @@
+% This program reads position data from csv and plots it
+
+redc = [0.9 0.1 0.11];
+bluec = [0.22 0.5 0.72];
+greenc = [0.3 0.69 0.29];
+purplec = [0.6 .3 .64];
+orangec = [1 .5 0];
+
+data = readtable("square_setpoint_70.csv",'ReadVariableNames', true);
+
+plotting = 340:3:length(data.t)-350;
+t = data.t(plotting);
+center_x = data.x_center(plotting);
+center_y = data.y_center(plotting);
+offset_x = data.x_offset(plotting);
+offset_y = data.y_offset(plotting);
+velocity_u = zeros(length(t),1);
+velocity_v = zeros(length(t),1);
+
+for index = 2:1:length(t)
+   velocity_u(index) = (center_x(index)-offset_x(index))/(t(index)-t(index-1));
+   velocity_v(index) = (center_y(index)-offset_y(index))/(t(index)-t(index-1));
+end
+
+figure(1);
+plot(center_x, center_y,'.','Color', bluec,'MarkerSize',10,'Linewidth',2);
+xlim([-.20 .60]);
+ylim([-.20 .60]);
+hold on
+plot([-0.05 -0.3 0.35 0.35 -0.3],[-0.3 0.35 0.35 0 0]);
+%plot(offset_x, offset_y,'.','Color', redc,'MarkerSize',10,'Linewidth',2);
+%quiver(center_x,center_y,velocity_u,velocity_v, 4, 'Color', greenc,'LineWidth',1)
+hold off

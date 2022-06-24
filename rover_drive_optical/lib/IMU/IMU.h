@@ -1,9 +1,12 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
+#include <SensorFusion.h>
 #include <Wire.h>
 
 extern Adafruit_MPU6050 mpu1;
 extern Adafruit_MPU6050 mpu2;
+
+extern float current_yaw;
 
 extern float rad_to_deg;
 
