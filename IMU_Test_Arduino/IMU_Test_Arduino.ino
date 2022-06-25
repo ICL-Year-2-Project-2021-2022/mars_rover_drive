@@ -16,7 +16,7 @@ Adafruit_MPU6050 mpu;
 //#define SERIAL_PLOTER
 
 void setup(void) {
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial)
     delay(10);  // will pause Zero, Leonardo, etc until serial console opens
 
@@ -64,7 +64,7 @@ void setup(void) {
       break;
   }
 
-  mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
+  mpu.setFilterBandwidth(MPU6050_BAND_94_HZ);
   Serial.print("Filter bandwidth set to: ");
   switch (mpu.getFilterBandwidth()) {
     case MPU6050_BAND_260_HZ:
@@ -100,13 +100,13 @@ void loop() {
   mpu.getEvent(&a, &g, &temp);
 
 #ifdef RAW_DATA
-  Serial << "From last Update:\t";
+  Serial.print("From last Update:\t");
   Serial.println(deltat, 6);
-  Serial << "GYRO:\tx:" << g.gyro.x << "\t\ty:" << g.gyro.y
-         << "\t\tz:" << g.gyro.z << newl;
-  Serial << "ACC:\tx:" << a.acceleration.x << "\t\ty:" << a.acceleration.y
-         << "\t\tz:" << a.acceleration.z << newl;
-  Serial << "TEMP:\t" << temp.temperature << newl << newl;
+  Serial.println("GYRO:\tx:"+ String(g.gyro.x) +"\t\ty:"+String(g.gyro.y)
+         + "\t\tz:" + String(g.gyro.z));
+  Serial.println("ACC:\tx:"+String(a.acceleration.x)+"\t\ty:"+String(a.acceleration.y)
+         +"\t\tz:"+String(a.acceleration.z));
+  Serial.println("TEMP:\t"+String(temp.temperature)+"\n");
 #endif
 
   deltat = fusion.deltatUpdate();
