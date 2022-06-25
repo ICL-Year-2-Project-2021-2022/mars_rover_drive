@@ -79,9 +79,9 @@ void rover_straight(float dist_reqd) {
         float rightmotorcontrol = maxlimit(100, R_pid + turn_pid);
 
 
-        Serial.print("Left motor control: " + String(leftmotorcontrol));
-        Serial.println(", Right motor control: " + String(rightmotorcontrol));
-        Serial.println("Turn pid: "+String(turn_pid));
+        //Serial.print("Left motor control: " + String(leftmotorcontrol));
+        //Serial.println(", Right motor control: " + String(rightmotorcontrol));
+        //Serial.println("Turn pid: "+String(turn_pid));
 
         motorrotate(leftmotorcontrol, motor1);
         motorrotate(rightmotorcontrol, motor2);
@@ -96,6 +96,7 @@ void rover_straight(float dist_reqd) {
           last_print = millis();
         }*/
         //Serial.println("abs(current_dist_error)" + String(abs(current_dist_error)) + "" + String(max_dist_error));
+        //delay(10); 
         delay(10);
     }
     robot.brake(motor1);

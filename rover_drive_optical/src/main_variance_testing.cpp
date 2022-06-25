@@ -56,13 +56,13 @@ void setup() {
 */
   // led setup
   led_begin();
+  delay(2000);
 }
 
 void loop() {
+  rover_straight(1200);
   delay(2000);
-  rover_straight(400);
-  delay(2000);
-  rover_straight(-400);
+  //rover_straight(-400);
   //rover_rotate(PI / 2);
-  //delay(3000);
+  //delay(2000);
 }

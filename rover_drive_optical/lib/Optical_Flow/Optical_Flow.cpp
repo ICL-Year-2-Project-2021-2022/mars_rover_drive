@@ -118,6 +118,23 @@ void check_cumulative_dist() {
   set_left_optical_cs(false);
   mousecam_read_motion(&md_right);
   delay(1);
+/*
+  uint16_t frame_period = 0;
+  frame_period = mousecam_read_reg(ADNS3080_FRAME_PERIOD_UPPER) * 256;
+  delay(1);
+  frame_period = frame_period + mousecam_read_reg(ADNS3080_FRAME_PERIOD_LOWER);
+  //Serial.print("Frame Period: " +String(24000000 / frame_period));
+  delay(1);
+  uint16_t shutter_period = 0;
+  shutter_period = mousecam_read_reg(ADNS3080_SHUTTER_UPPER) * 256;
+  delay(1);
+  shutter_period = shutter_period + mousecam_read_reg(ADNS3080_SHUTTER_LOWER);
+  //Serial.print("Shutter Period (Clock cycles): " +String(shutter_period));
+  delay(1);
+  */
+  //Serial.println("SQUAL Left: "+String(md_left.squal)+"SQUAL Right: "+String(md_right.squal));
+  Serial.println(String(md_left.squal)+","+String(md_right.squal)+","+String(convTwosComp(md_left.dx))+","+String(convTwosComp(md_left.dy))+","+String(convTwosComp(md_right.dx))+","+String(convTwosComp(md_right.dy)));
+  // reduce delay in pid loops to 1 milli
 
   // measured changes in r and l for left
   delta_u_au_left = convTwosComp(md_left.dx);
