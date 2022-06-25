@@ -7,41 +7,41 @@ float timeCounterRotateLoop = 0;
 float R_pid_loop(float dist_error,
                  float prev_dist_error,
                  float integral_error) {
-    float dist_derivative = dist_error - prev_dist_error;
-    float kp_dist = 2.5;
-    float ki_dist = 0;
-    float kd_dist = 2;
-    float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
-                  ki_dist * integral_error;
-    R_pid = maxlimit(100, R_pid);
-    return R_pid;
+  float dist_derivative = dist_error - prev_dist_error;
+  float kp_dist = 2.5;
+  float ki_dist = 0;
+  float kd_dist = 2;
+  float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
+                ki_dist * integral_error;
+  R_pid = maxlimit(100, R_pid);
+  return R_pid;
 }
 
 // angular correction PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error) {
-    float theta_derivative = theta_error - prev_theta_error;
-    float kp_theta = 20;  // change
-    float kd_theta = 15;
-    float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
-    return theta_pid;
+  float theta_derivative = theta_error - prev_theta_error;
+  float kp_theta = 20;  // change
+  float kd_theta = 15;
+  float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
+  return theta_pid;
 }
 
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
-    float turn_derivative = turn_error - prev_turn_error;
-    float kp_turn = 5;
-    float kd_turn = 3;
-    float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
-    return turn_pid;
+  float turn_derivative = turn_error - prev_turn_error;
+  float kp_turn = 5;
+  float kd_turn = 2;
+  float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
+  return turn_pid;
 }
 
 // offset correction PD loop
 float offset_pid_loop(float offset_error, float prev_offset_error) {
-    float offset_derivative = offset_error - prev_offset_error;
-    float kp_offset = 0.5;
-    float kd_offset = 0.25;
-    float offset_pid = kp_offset * offset_error + kd_offset * offset_derivative;
-    return offset_pid;
+  float offset_derivative = offset_error - prev_offset_error;
+  float kp_offset = 0.5;
+  float kd_offset = 0.25;
+  float offset_pid = kp_offset * offset_error + kd_offset * offset_derivative;
+  return offset_pid;
 }
 
 // motor control straight
@@ -52,11 +52,11 @@ void rover_straight(float dist_reqd) {
     float current_turn_error = 0;
     // reset_imu_angle();
     while (abs(current_dist_error) > max_dist_error) {
-        float deltat = 0;
+        //float deltat = 0;
         check_cumulative_dist();
         /*check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
                         total_theta_right, deltat);*/
-        timeCounterStraightLoop += deltat;
+        //timeCounterStraightLoop += deltat;
 
         float prev_dist_error = current_dist_error;
         current_dist_error =

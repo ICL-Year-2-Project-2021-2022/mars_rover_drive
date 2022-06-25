@@ -1,9 +1,15 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
+#include <SensorFusion.h>
 #include <Wire.h>
 
-extern Adafruit_MPU6050 mpu1;
+extern float gx, gy, gz, ax, ay, az, mx, my, mz, temp;
+extern float pitch, roll, yaw;
+extern float deltat;
+
 extern Adafruit_MPU6050 mpu2;
+
+extern float current_yaw;
 
 extern float rad_to_deg;
 
@@ -11,10 +17,7 @@ extern float rad_to_deg;
 
 void imu_setup();
 
-void reset_imu_angle();
-
-void check_imu_angle(float& theta_left,
-                     float& theta_right,
+void check_imu_angle(float& delta_theta_left,
+                     float& delta_theta_right,
                      float& total_theta_left,
-                     float& total_theta_right,
-                     float& deltat);
+                     float& total_theta_right);

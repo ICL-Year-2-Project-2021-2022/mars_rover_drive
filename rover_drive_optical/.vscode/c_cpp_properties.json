@@ -8,6 +8,7 @@
         {
             "name": "PlatformIO",
             "includePath": [
+<<<<<<< HEAD
                 "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/include",
                 "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/src",
                 "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/lib/pid_loops",
@@ -20,6 +21,22 @@
                 "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit MPU6050",
                 "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit Unified Sensor",
                 "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit BusIO",
+=======
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/include",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/src",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/pid_loops",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/Optical_Flow",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/Motor_Drive",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/Robojax-L298N-DC-Motor",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/LED_Strip",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/IMU",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/SensorFusion/src",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/FastLED/src",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit MPU6050",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit Unified Sensor",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit BusIO",
+                "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
+>>>>>>> integration-tuning-tim
                 "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                 "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/FastLED/src",
                 "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
@@ -199,8 +216,8 @@
                 "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/qspi_qspi/include",
                 "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/cores/esp32",
                 "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/variants/esp32",
-                "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit GFX Library",
-                "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit SSD1306",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit GFX Library",
+                "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit SSD1306",
                 "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/ArduinoOTA/src",
                 "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
                 "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",
@@ -236,6 +253,7 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
+<<<<<<< HEAD
                     "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/include",
                     "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/src",
                     "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/lib/pid_loops",
@@ -248,6 +266,22 @@
                     "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit MPU6050",
                     "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit Unified Sensor",
                     "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit BusIO",
+=======
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/include",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/src",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/pid_loops",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/Optical_Flow",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/Motor_Drive",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/Robojax-L298N-DC-Motor",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/LED_Strip",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/lib/IMU",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/SensorFusion/src",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/FastLED/src",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit MPU6050",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit Unified Sensor",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit BusIO",
+                    "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
+>>>>>>> integration-tuning-tim
                     "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                     "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/FastLED/src",
                     "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
@@ -427,8 +461,8 @@
                     "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/qspi_qspi/include",
                     "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/cores/esp32",
                     "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/variants/esp32",
-                    "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit GFX Library",
-                    "c:/Users/timot/Documents/GitHub/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit SSD1306",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit GFX Library",
+                    "c:/Users/timot/Documents/Programming/Year 2 Project Code/mars_rover_drive/rover_drive_optical/.pio/libdeps/esp32dev/Adafruit SSD1306",
                     "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/ArduinoOTA/src",
                     "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
                     "C:/Users/timot/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",

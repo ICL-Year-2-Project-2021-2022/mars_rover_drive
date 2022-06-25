@@ -93,4 +93,52 @@ float get_total_y(float time) {
   // 0.02 * acceleration_angle_y;
   float total_z = total_z + g.acceleration.z * rad_to_deg * time;
   return total_z;
-}*/
+}
+
+// sensor fusion approach
+#if 1
+void check_imu_angle(float& delta_theta_left,
+                     float& delta_theta_right,
+                     float& total_theta_left,
+                     float& total_theta_right) {
+  sensors_event_t a, g, temp;
+  mpu2.getEvent(&a, &g, &temp);
+
+  float deltat = fusion.deltatUpdate();
+  // fusion.MahonyUpdate(gx, gy, gz, ax, ay, az, mx, my, mz, deltat);  //mahony
+  // is suggested if there isn't the mag
+  fusion.MahonyUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
+                      a.acceleration.y, a.acceleration.z,
+                      deltat);  // else use the magwick
+
+  // fusion.MadgwickUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
+  //                      a.acceleration.y, a.acceleration.z, deltat);
+  float yaw = fusion.getYaw();
+
+  delta_theta_left = yaw - current_yaw;
+  delta_theta_right = yaw - current_yaw;
+  total_theta_left = yaw;
+  total_theta_right = yaw;
+}
+
+// naive approach without sensor fusion. Only gyro integral
+#else
+void check_imu_angle(int& delta_theta_left,
+                     int& delta_theta_right,
+                     int& total_theta_left,
+                     int& total_theta_right) {
+  sensors_event_t a, g, temp;
+  mpu2.getEvent(&a, &g, &temp);
+
+  deltat = fusion.deltatUpdate();
+  // fusion.MahonyUpdate(gx, gy, gz, ax, ay, az, mx, my, mz, deltat);  //mahony
+  // is suggested if there isn't the mag
+  fusion.MahonyUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
+                      a.acceleration.y, a.acceleration.z,
+                      deltat);  // else use the magwick
+  delta_theta_left = g.gyro.z * deltat;
+  delta_theta_right = g.gyro.z * deltat;
+  total_theta_left = total_theta_left + delta_theta_left;
+  total_theta_right = total_theta_left + delta_theta_left;
+}
+#endif

@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Motor_Drive.h>
 #include <Optical_Flow.h>
-//#include <IMU.h>
+#include <IMU.h>
 
 // max errors
 const float max_dist_error = 0.5;
