@@ -4,15 +4,15 @@
 // optical flow defns
 // these pins may be different on different boards
 
-#define PIN_SS_LEFT 13    // D7
-#define PIN_SS_RIGHT 5  // D3
+#define PIN_SS_LEFT 13    // SDA
+#define PIN_SS_RIGHT 5   // D7
 #define PIN_MISO 19      // D5
 #define PIN_MOSI 23      // D2
 #define PIN_SCK 18       // D6
 
 #define PIN_MOUSECAM_RESET 35     // A5
 #define PIN_MOUSECAM_CS_LEFT 5    // D7
-#define PIN_MOUSECAM_CS_RIGHT 13  // D3
+#define PIN_MOUSECAM_CS_RIGHT 13  // SDA
 
 #define ADNS3080_PIXELS_X 30
 #define ADNS3080_PIXELS_Y 30
