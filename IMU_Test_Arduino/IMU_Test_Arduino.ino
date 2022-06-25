@@ -1,10 +1,10 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
-#include <SensorFusion.h>
 #include <Wire.h>
+#include "SensorFusion.h"
 SF fusion;
 
-float gx, gy, gz, ax, ay, az, temp;
+float gx, gy, gz, ax, ay, az, mx, my, mz, temp;
 float pitch, roll, yaw;
 float deltat;
 
@@ -16,7 +16,7 @@ Adafruit_MPU6050 mpu;
 //#define SERIAL_PLOTER
 
 void setup(void) {
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial)
     delay(10);  // will pause Zero, Leonardo, etc until serial console opens
 
@@ -31,7 +31,7 @@ void setup(void) {
   }
   Serial.println("MPU6050 Found!");
 
-  mpu.setAccelerometerRange(MPU6050_RANGE_4_G);
+  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   Serial.print("Accelerometer range set to: ");
   switch (mpu.getAccelerometerRange()) {
     case MPU6050_RANGE_2_G:
@@ -100,13 +100,13 @@ void loop() {
   mpu.getEvent(&a, &g, &temp);
 
 #ifdef RAW_DATA
-  Serial << "From last Update:\t";
+  Serial.print("From last Update:\t");
   Serial.println(deltat, 6);
-  Serial << "GYRO:\tx:" << g.gyro.x << "\t\ty:" << g.gyro.y
-         << "\t\tz:" << g.gyro.z << newl;
-  Serial << "ACC:\tx:" << a.acceleration.x << "\t\ty:" << a.acceleration.y
-         << "\t\tz:" << a.acceleration.z << newl;
-  Serial << "TEMP:\t" << temp.temperature << newl << newl;
+  Serial.println("GYRO:\tx:"+ String(g.gyro.x) +"\t\ty:"+String(g.gyro.y)
+         + "\t\tz:" + String(g.gyro.z));
+  Serial.println("ACC:\tx:"+String(a.acceleration.x)+"\t\ty:"+String(a.acceleration.y)
+         +"\t\tz:"+String(a.acceleration.z));
+  Serial.println("TEMP:\t"+String(temp.temperature)+"\n");
 #endif
 
   deltat = fusion.deltatUpdate();
@@ -114,10 +114,7 @@ void loop() {
   // is suggested if there isn't the mag
   fusion.MahonyUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
                       a.acceleration.y, a.acceleration.z,
-                      deltat);  // else use the magwick
-
-  // fusion.MadgwickUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
-  //                       a.acceleration.y, a.acceleration.z, deltat);
+                      temp.temperature);  // else use the magwick
 
   roll = fusion.getRoll();
   pitch = fusion.getPitch();
