@@ -1,4 +1,9 @@
+#ifndef MOTOR
+#define MOTOR
+
 #include <Robojax_L298N_DC_motor.h>
+#include "../global.h"
+
 // motor defns
 // motor 1 settings
 #define CHA 0
@@ -15,8 +20,10 @@ const int CW = 1;  // do not change
 #define motor1 1   // do not change
 #define motor2 2   // do not change
 
-const int min_motor_val = 20;
+const int min_motor_val = 45;
 const int max_motor_val = 60;
+
+extern int last_speed;
 
 // for two motors without debug information // Watch video instruciton for this line: https://youtu.be/2JTMqURJTwg
 extern Robojax_L298N_DC_motor robot;
@@ -26,3 +33,5 @@ float maxlimit(float max, float input);
 int motor_profile(float preadj_speed);
 
 void motorrotate(int speed, int motor_no);
+
+#endif

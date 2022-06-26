@@ -8,9 +8,9 @@ float R_pid_loop(float dist_error,
                  float prev_dist_error,
                  float integral_error) {
   float dist_derivative = dist_error - prev_dist_error;
-  float kp_dist = 1.3;
+  float kp_dist = 0.5;
   float ki_dist = 0;
-  float kd_dist = 0.3;
+  float kd_dist = 0.08;
   float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
                 ki_dist * integral_error;
   R_pid = maxlimit(100, R_pid);
@@ -20,7 +20,7 @@ float R_pid_loop(float dist_error,
 // angular correction PD loop
 float theta_pid_loop(float theta_error, float prev_theta_error) {
   float theta_derivative = theta_error - prev_theta_error;
-  float kp_theta = 20;  // change
+  float kp_theta = 15;  // change
   float kd_theta = 0;
   float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative;
   return theta_pid;
@@ -29,8 +29,8 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
   float turn_derivative = turn_error - prev_turn_error;
-  float kp_turn = 0.5;
-  float kd_turn = 0.1;
+  float kp_turn = 0.35;
+  float kd_turn = 0.07;
   float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
   return turn_pid;
 }
@@ -38,8 +38,8 @@ float turn_pid_loop(float turn_error, float prev_turn_error) {
 // offset correction PD loop
 float offset_pid_loop(float offset_error, float prev_offset_error) {
   float offset_derivative = offset_error - prev_offset_error;
-  float kp_offset = 2;
-  float kd_offset = 0.25;
+  float kp_offset = 0.0;
+  float kd_offset = 0.0;
   float offset_pid = kp_offset * offset_error + kd_offset * offset_derivative;
   return offset_pid;
 }

@@ -108,6 +108,7 @@ float get_delta_theta(float delta_u_mm,
 
 // loop functions
 void check_cumulative_dist() {
+
   MD md_left;
   MD md_right;
 
@@ -118,7 +119,12 @@ void check_cumulative_dist() {
   set_left_optical_cs(false);
   mousecam_read_motion(&md_right);
   delay(1);
-
+/*
+  if (md_left.dy > 30 || md_right.dy > 30) {
+    delay(1);
+    check_cumulative_dist();
+  }
+*/
   // measured changes in r and l for left
   delta_u_au_left = convTwosComp(md_left.dx);
   delta_v_au_left = convTwosComp(md_left.dy);

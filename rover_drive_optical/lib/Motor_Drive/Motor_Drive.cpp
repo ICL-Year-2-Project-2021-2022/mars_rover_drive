@@ -4,6 +4,9 @@
 // line: https://youtu.be/2JTMqURJTwg
 Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA, IN3, IN4, ENB, CHB);
 
+int last_speed = 0;
+const int step_size_motor = 30;
+
 // limiting function
 float maxlimit(float max, float input) {
   float out;
@@ -56,9 +59,20 @@ int motor_profile(float preadj_speed) {
 
 // motor function (to remove need for CCW and CW -> -100 to 100)
 void motorrotate(int speed, int motor_no) {
+  /*
+  if (abs(speed - last_speed) > step_size_motor) {
+    if (speed > last_speed){
+      speed = last_speed + step_size_motor;
+    }
+    else {
+      speed = last_speed - step_size_motor;
+    }
+  }
+  */
   if (speed > 0) {
     robot.rotate(motor_no, motor_profile(speed), CCW);
   } else {
     robot.rotate(motor_no, motor_profile(abs(speed)), CW);
   }
+  last_speed = speed;
 }
