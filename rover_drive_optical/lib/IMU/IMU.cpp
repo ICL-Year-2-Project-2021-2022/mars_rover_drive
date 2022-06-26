@@ -38,8 +38,8 @@ void reset_imu_angle() {
 // sensor fusion approach
 void check_imu_angle(float& theta_left,
                      float& theta_right,
-                     float& total_theta_left,
-                     float& total_theta_right,
+                     float& total_theta_left_imu,
+                     float& total_theta_right_imu,
                      float& deltat) {
   /* Get new sensor events with the readings */
   sensors_event_t a, g, temp;
@@ -62,9 +62,15 @@ void check_imu_angle(float& theta_left,
   yaw = fusion.getYawRadians();
   yaw2 = fusion2.getYawRadians();
 
-  float calculated_theta_left = ((yaw - current_yaw) + (yaw2 - current_yaw2)) / 2;
-  float calculated_theta_right = ((yaw - current_yaw) + (yaw2 - current_yaw2)) / 2;
-  if (calculated_theta_left > -0.8f && calculated_theta_left < 0.8f) {
+  theta_left = ((yaw - current_yaw) + (yaw2 - current_yaw2)) / 2;
+  theta_right = ((yaw - current_yaw) + (yaw2 - current_yaw2)) / 2;
+
+  total_theta_left_imu = total_theta_left_imu + theta_left;
+  total_theta_right_imu = total_theta_right_imu + theta_right;
+
+  current_yaw = total_theta_left_imu;
+  current_yaw2 = total_theta_right_imu;
+  /*if (calculated_theta_left > -0.8f && calculated_theta_left < 0.8f) {
       theta_left = calculated_theta_left;
       total_theta_left = total_theta_left + theta_left;
       current_yaw = total_theta_left;
@@ -73,7 +79,7 @@ void check_imu_angle(float& theta_left,
       theta_right = calculated_theta_right;
       total_theta_right = total_theta_right + theta_right;
       current_yaw2 = total_theta_right;
-  }
+  }*/
 }
 
 /*

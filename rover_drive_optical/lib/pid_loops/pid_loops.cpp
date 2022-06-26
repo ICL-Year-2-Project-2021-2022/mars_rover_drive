@@ -139,11 +139,10 @@ void rover_rotate(float theta_reqd) {
     // reset_imu_angle();
     while (abs(current_theta_error) > max_theta_error) {
         check_cumulative_dist();
-        /*float deltat = 0;
+        //float deltat = 0;
         check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
                         total_theta_right, deltat);
-        timeCounterRotateLoop += deltat;
-*/
+        //timeCounterRotateLoop += deltat;
         /*if (timeCounterStraightLoop <= 1.57f) {
             delta_theta_left = delta_theta_left + 0.0007f;
             delta_theta_right = delta_theta_right + 0.0007f;
@@ -185,9 +184,9 @@ void rover_rotate(float theta_reqd) {
         motorrotate(leftmotorcontrol, motor1);
         motorrotate(rightmotorcontrol, motor2);
 
-        Serial.println("Rotate loop: current_theta_error - " + String(abs(current_theta_error)) + "; max_theta_error: "
-                       + String(max_theta_error) + " delta_theta_left: " + String(delta_theta_left) +
-                       "; delta_theta_right: " + String(delta_theta_right));
+        //Serial.println("Rotate loop: current_theta_error - " + String(abs(current_theta_error)) + "; max_theta_error: "
+        //               + String(max_theta_error) + " delta_theta_left: " + String(delta_theta_left) +
+        //               "; delta_theta_right: " + String(delta_theta_right));
 
         /*if ((millis() - last_print) > 1000) {
           Serial.println("Total_theta: (" + String(total_theta_left) + "," +

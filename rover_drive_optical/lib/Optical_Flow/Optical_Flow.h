@@ -4,7 +4,7 @@
 // optical flow defns
 // these pins may be different on different boards
 
-#define PIN_SS_LEFT 13    // SDA
+#define PIN_SS_LEFT 13   // SDA
 #define PIN_SS_RIGHT 5   // D7
 #define PIN_MISO 19      // D5
 #define PIN_MOSI 23      // D2

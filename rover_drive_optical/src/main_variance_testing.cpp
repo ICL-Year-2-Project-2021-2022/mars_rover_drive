@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <LED_Strip.h>
 #include <pid_loops.h>
-//#include <IMU.h>
+#include <IMU.h>
 
 void setup() {
   Serial.begin(9600);
@@ -37,7 +37,7 @@ void setup() {
   } else {
     Serial.println("Right optical flow sensor initialised.");
   }
-/*
+
   // imu setup
   imu_setup();
   if (!mpu1.begin(0x69)) {
@@ -53,7 +53,7 @@ void setup() {
       delay(10);
     }
   }
-*/
+
   // led setup
   led_begin();
 }
