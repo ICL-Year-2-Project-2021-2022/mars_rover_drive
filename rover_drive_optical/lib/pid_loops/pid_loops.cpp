@@ -66,10 +66,6 @@ void rover_straight(float dist_reqd) {
 
         float prev_turn_error = current_turn_error;
         current_turn_error = delta_v_mm_right - delta_v_mm_left;
-        // condition to exit loop
-        /*if (abs(current_dist_error) < max_dist_error) {
-            break;
-        }*/
 
         if ((abs(current_turn_error) < max_turn_error)|| (abs(current_dist_error)<10)){
           current_turn_error=0;
@@ -82,10 +78,6 @@ void rover_straight(float dist_reqd) {
         float leftmotorcontrol = maxlimit(100, R_pid + turn_pid);
         float rightmotorcontrol = maxlimit(100, R_pid - turn_pid);
 
-        
-        //float leftmotorcontrol = maxlimit(100, 50 + turn_pid);
-        //float rightmotorcontrol = maxlimit(100, 50 - turn_pid);
-
         Serial.print("Left motor control: " + String(leftmotorcontrol));
         Serial.println(", Right motor control: " + String(rightmotorcontrol));
         Serial.println("Turn pid: "+String(turn_pid));
@@ -93,16 +85,6 @@ void rover_straight(float dist_reqd) {
         motorrotate(leftmotorcontrol, motor1);
         motorrotate(rightmotorcontrol, motor2);
 
-        /*
-        if ((millis() - last_print) > 1000) {
-          Serial.println("Current dist error " + String(current_dist_error) +
-                         "Prev dist error " + String(prev_dist_error));
-          Serial.println("Left motor control " + String(leftmotorcontrol) +
-                         ", Right motor control " + String(rightmotorcontrol));
-          Serial.println("\n");
-          last_print = millis();
-        }*/
-        //Serial.println("abs(current_dist_error)" + String(abs(current_dist_error)) + "" + String(max_dist_error));
         delay(5);
     }
     robot.brake(motor1);
@@ -139,30 +121,6 @@ void rover_rotate(float theta_reqd) {
     // reset_imu_angle();
     while (abs(current_theta_error) > max_theta_error) {
         check_cumulative_dist();
-        /*float deltat = 0;
-        check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
-                        total_theta_right, deltat);
-        timeCounterRotateLoop += deltat;
-*/
-        /*if (timeCounterStraightLoop <= 1.57f) {
-            delta_theta_left = delta_theta_left + 0.0007f;
-            delta_theta_right = delta_theta_right + 0.0007f;
-        } else if (timeCounterStraightLoop <= 2.5f) {
-            delta_theta_left = delta_theta_left + 0.0019f;
-            delta_theta_right = delta_theta_right + 0.0019f;
-        } else if (timeCounterStraightLoop <= 3.5f) {
-            delta_theta_left = delta_theta_left + 0.0037f;
-            delta_theta_right = delta_theta_right + 0.0037f;
-        } else if (timeCounterStraightLoop <= 4.5f) {
-            delta_theta_left = delta_theta_left + 0.0028f;
-            delta_theta_right = delta_theta_right + 0.0028f;
-        } else if (timeCounterStraightLoop <= 10) {
-            delta_theta_left = delta_theta_left + 0.0001f;
-            delta_theta_right = delta_theta_right + 0.0001f;
-        } else {
-            delta_theta_left = delta_theta_left + 9E-05f;
-            delta_theta_right = delta_theta_right + 9E-05f;
-        }*/
 
         float prev_theta_error = current_theta_error;
         current_theta_error =
@@ -170,13 +128,11 @@ void rover_rotate(float theta_reqd) {
 
         float prev_offset_error = current_offset_error;
         current_offset_error = delta_v_mm_right + delta_v_mm_left;
-        // condition to exit loop
-        /*if (abs(current_theta_error) < max_theta_error) {
-            break;
-        }*/
+        
         if ((abs(current_offset_error) < max_offset_error)|| (abs(current_theta_error)<0.4)){
-          current_offset_error=0;
+          current_offset_error = 0;
         }
+
         float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
         float offset_pid = offset_pid_loop(current_offset_error, prev_offset_error);
         float leftmotorcontrol = maxlimit(100, theta_pid + offset_pid);
@@ -189,18 +145,6 @@ void rover_rotate(float theta_reqd) {
                        + String(max_theta_error) + " delta_theta_left: " + String(delta_theta_left) +
                        "; delta_theta_right: " + String(delta_theta_right));
 
-        /*if ((millis() - last_print) > 1000) {
-          Serial.println("Total_theta: (" + String(total_theta_left) + "," +
-                         String(total_theta_right) + ")|Average: " +
-                         String((total_theta_left + total_theta_right) / 2));
-          Serial.println("Current theta error " + String(current_theta_error) +
-                         "Prev theta error " + String(prev_theta_error));
-          Serial.println("Left motor control " + String(leftmotorcontrol) +
-                         ", Right motor control " + String(rightmotorcontrol));
-          Serial.println("\n");
-          last_print = millis();
-        }*/
-
         delay(15);
     }
     robot.brake(motor1);
@@ -208,90 +152,3 @@ void rover_rotate(float theta_reqd) {
     Serial.println("exiting the loop");
     last_speed = 0;
 }
-
-/*
-// main motor control function
-void motor_control(float dist_reqd, float theta_reqd) {
-  float current_dist_error = dist_reqd;
-  float current_theta_error = theta_reqd;
-  // while ((abs(current_dist_error) > max_dist_error) ||
-  // (abs(current_theta_error) > max_theta_error))
-  bool enable_pid_bool = enable_pid(dist_reqd, theta_reqd, current_dist_error,
-                                    current_theta_error);
-  while (enable_pid_bool) {
-    check_cumulative_dist();
-    float prev_dist_error = current_dist_error;
-    current_dist_error = current_dist_error - delta_r;
-
-    float prev_theta_error = current_theta_error;
-    current_theta_error = current_theta_error - delta_theta;
-
-    // returns if pid no longer required
-    enable_pid_bool = enable_pid(dist_reqd, theta_reqd, current_dist_error,
-                                 current_theta_error);
-    if (!enable_pid_bool) {
-      return;
-    }
-
-    float R_pid = R_pid_loop(current_dist_error, prev_dist_error);
-    float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
-    // Serial.print("R_pid " + String(R_pid));
-    // Serial.println(", theta_pid " + String(theta_pid));
-
-    float leftmotorcontrol = maxlimit(100, R_pid + theta_pid);
-    float rightmotorcontrol = maxlimit(100, R_pid - theta_pid);
-    // Serial.println("Left motor control "+String(leftmotorcontrol)+", Right
-    // motor control "+String(rightmotorcontrol));
-    motorrotate(leftmotorcontrol, motor1);
-    motorrotate(rightmotorcontrol, motor2);
-
-    if ((millis() - last_print) > 1000) {
-      Serial.println("Total_l,Total_r: (" + String(total_l) + "," +
-                     String(total_r) + ")");
-      Serial.println("Total_Thetha : " + String(total_theta));
-      Serial.println("Current dist error " + String(current_dist_error) +
-                     "Prev dist error " + String(prev_dist_error));
-      Serial.println("Current theta error " + String(current_theta_error) +
-                     "Prev theta error " + String(prev_theta_error));
-      Serial.println("Left motor control " + String(leftmotorcontrol) +
-                     ", Right motor control " + String(rightmotorcontrol));
-      Serial.println("\n");
-      last_print = millis();
-    }
-    delay(100);
-  }
-}*/
-
-// BELOW IS AN IMU APPROACH TO PID ANGLE CONTROL
-
-/*
-float integralSum = 0;
-float lastError = 0;
-
-float modWrapper(float degrees) {
-  while(degrees > 180.0) {
-    degrees -= 360;
-  }
-  while(degrees < -180) {
-    degrees += 360;
-  }
-  return degrees;
-}
-
-float PIDControl(float reference, float state) {
-  float error = modWrapper(reference - state);
-  float integralSum += error * millis() * 1000;
-  float derivative = (error - lastError) / (millis() * 1000);
-  float lastError = error;
-  float output = (error * Kp) + (derivative * Kd)  + (integralSum * Ki);
-  return output;
-}
-
-void rover_rotate(float referenceAngle) {
-  while (abs(lastError) > max_theta_error) {
-    float power = PIDControl(referenceAngle, get_total_y(millis()));
-    float leftmotorcontrol = maxlimit(100, power);
-    float rightmotorcontrol = maxlimit(100, -power);
-    Serial.println("IMU Experiments");
-  }
-} */
