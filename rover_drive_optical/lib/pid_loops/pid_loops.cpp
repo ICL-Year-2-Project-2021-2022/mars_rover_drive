@@ -50,6 +50,7 @@ void rover_straight(float dist_reqd) {
     float current_dist_error = dist_reqd;
     float current_integral_dist_error = 0;
     float current_turn_error = 0;
+    float timeoutcounter = 0;
     // reset_imu_angle();
     while (abs(current_dist_error) > max_dist_error) {
         //float deltat = 0;
@@ -57,7 +58,7 @@ void rover_straight(float dist_reqd) {
         /*check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
                         total_theta_right, deltat);*/
         //timeCounterStraightLoop += deltat;
-
+        
         float prev_dist_error = current_dist_error;
         current_dist_error =
                 current_dist_error - (delta_v_mm_left + delta_v_mm_right) / 2;
@@ -70,7 +71,13 @@ void rover_straight(float dist_reqd) {
         /*if (abs(current_dist_error) < max_dist_error) {
             break;
         }*/
-
+        // or prev_dist_error == current_dist_error;
+        if(abs(prev_dist_error-current_dist_error) <= 0.5){
+          timeoutcounter++;
+        }
+        if (timeoutcounter > 10) {
+            break;
+        }
         if ((abs(current_turn_error) < max_turn_error)|| (abs(current_dist_error)<10)){
           current_turn_error=0;
         }
@@ -92,7 +99,8 @@ void rover_straight(float dist_reqd) {
 
         motorrotate(leftmotorcontrol, motor1);
         motorrotate(rightmotorcontrol, motor2);
-
+        
+          
         /*
         if ((millis() - last_print) > 1000) {
           Serial.println("Current dist error " + String(current_dist_error) +
