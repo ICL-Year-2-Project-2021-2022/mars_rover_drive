@@ -8,12 +8,12 @@ import time
 #import matplotlib.pyplot as plt
 #import pandas as pd
  
-portPath = "COM9"       # Must match value shown on Arduino IDE
+portPath = "COM3"       # Must match value shown on Arduino IDE
 baud = 9600                     # Must match Arduino baud rate
 timeout = 5                       # Seconds
-filename = "data_serial/testfile_" + str(datetime.datetime.now().strftime("%y_%m_%d_%H_%M_%S_%p")) + ".csv"
+filename = "../data_optical/imu_data/testfile_" + str(datetime.datetime.now().strftime("%y_%m_%d_%H_%M_%S_%p")) + ".csv"
 max_num_readings = 32000
-header_list = ["deltat","IMU1","IMU2"]
+header_list = ["deltat","deltat2","IMU1_yaw68","IMU2_yaw69","IMU_yaw_ave"]
  
  
  

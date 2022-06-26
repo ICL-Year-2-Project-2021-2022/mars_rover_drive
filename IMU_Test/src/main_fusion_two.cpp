@@ -21,35 +21,35 @@ Adafruit_MPU6050 mpu2;
 //#define SERIAL_PLOTER
 
 void setup(void) {
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial)
     delay(10);  // will pause Zero, Leonardo, etc until serial console opens
 
-  Serial.println("Adafruit MPU6050 test!");
+  //Serial.println("Adafruit MPU6050 test!");
 
   // Try to initialize!
-  if (!mpu.begin(0x69)) {
+  if (!mpu.begin(0x68)) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
       delay(10);
     }
   }
-  Serial.println("MPU6050 Found!");
+  //Serial.println("MPU6050 Found!");
 
-  Serial.println("Adafruit MPU6050 2 test!");
+  //Serial.println("Adafruit MPU6050 2 test!");
 
   // Try to initialize!
   // ad0 must be connected to ground
-  if (!mpu2.begin(0x68)) {
+  if (!mpu2.begin(0x69)) {
     Serial.println("Failed to find MPU6050 2 chip");
     while (1) {
       delay(10);
     }
   }
-  Serial.println("MPU6050 2 Found!");
+  //Serial.println("MPU6050 2 Found!");
 
   mpu.setAccelerometerRange(MPU6050_RANGE_4_G);
-  Serial.print("Accelerometer range set to: ");
+  /*Serial.print("Accelerometer range set to: ");
   switch (mpu.getAccelerometerRange()) {
     case MPU6050_RANGE_2_G:
       Serial.println("+-2G");
@@ -63,9 +63,9 @@ void setup(void) {
     case MPU6050_RANGE_16_G:
       Serial.println("+-16G");
       break;
-  }
+  }*/
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-  Serial.print("Gyro range set to: ");
+  /*Serial.print("Gyro range set to: ");
   switch (mpu.getGyroRange()) {
     case MPU6050_RANGE_250_DEG:
       Serial.println("+- 250 deg/s");
@@ -79,10 +79,10 @@ void setup(void) {
     case MPU6050_RANGE_2000_DEG:
       Serial.println("+- 2000 deg/s");
       break;
-  }
+  }*/
 
   mpu.setFilterBandwidth(MPU6050_BAND_94_HZ);
-  Serial.print("Filter bandwidth set to: ");
+  /*Serial.print("Filter bandwidth set to: ");
   switch (mpu.getFilterBandwidth()) {
     case MPU6050_BAND_260_HZ:
       Serial.println("260 Hz");
@@ -105,9 +105,9 @@ void setup(void) {
     case MPU6050_BAND_5_HZ:
       Serial.println("5 Hz");
       break;
-  }
+  }*/
 
-  Serial.println("");
+  //Serial.println("");
 
   delay(10);
   // Try to initialize!
@@ -117,10 +117,10 @@ void setup(void) {
       delay(10);
     }
   }
-  Serial.println("MPU6050 Found!");
+  //Serial.println("MPU6050 Found!");
 
   mpu2.setAccelerometerRange(MPU6050_RANGE_4_G);
-  Serial.print("Accelerometer range set to: ");
+  /*Serial.print("Accelerometer range set to: ");
   switch (mpu2.getAccelerometerRange()) {
     case MPU6050_RANGE_2_G:
       Serial.println("+-2G");
@@ -134,9 +134,9 @@ void setup(void) {
     case MPU6050_RANGE_16_G:
       Serial.println("+-16G");
       break;
-  }
+  }*/
   mpu2.setGyroRange(MPU6050_RANGE_500_DEG);
-  Serial.print("Gyro range set to: ");
+  /*Serial.print("Gyro range set to: ");
   switch (mpu2.getGyroRange()) {
     case MPU6050_RANGE_250_DEG:
       Serial.println("+- 250 deg/s");
@@ -150,10 +150,10 @@ void setup(void) {
     case MPU6050_RANGE_2000_DEG:
       Serial.println("+- 2000 deg/s");
       break;
-  }
+  }*/
 
   mpu2.setFilterBandwidth(MPU6050_BAND_94_HZ);
-  Serial.print("Filter bandwidth set to: ");
+  /*Serial.print("Filter bandwidth set to: ");
   switch (mpu2.getFilterBandwidth()) {
     case MPU6050_BAND_260_HZ:
       Serial.println("260 Hz");
@@ -176,9 +176,9 @@ void setup(void) {
     case MPU6050_BAND_5_HZ:
       Serial.println("5 Hz");
       break;
-  }
+  }*/
 
-  Serial.println("");
+  //Serial.println("");
   delay(100);
 }
 
@@ -223,8 +223,9 @@ void loop() {
 #ifdef EULER_DATA
   // Serial.println("Pitch:\t" + String(pitch) + "\t\tRoll:\t" + String(roll) +
   //                "\t\tYaw:\t" + String(yaw) + "\n");
-  Serial.println("Yaw:\t" + String(yaw) + "\t\tYaw2:\t" + String(yaw2) +
-                 "\t\tYaw average:\t" + String((yaw2 + yaw) / 2));
+  //Serial.println("Yaw:\t" + String(yaw) + "\t\tYaw2:\t" + String(yaw2) +
+  //               "\t\tYaw average:\t" + String((yaw2 + yaw) / 2));
+  Serial.println(String(deltat)+","+String(deltat2)+","+String(yaw) + "," + String(yaw2) + "," + String((yaw2 + yaw) / 2));
 #endif
 
 #ifdef PROCESSING
@@ -238,5 +239,5 @@ void loop() {
   Serial << pitch << " " << roll << " " << yaw << endl;
 #endif
 
-  delay(200);  // for readability
+  delay(20);  // for readability
 }

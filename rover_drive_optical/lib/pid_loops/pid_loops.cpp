@@ -86,9 +86,9 @@ void rover_straight(float dist_reqd) {
         //float leftmotorcontrol = maxlimit(100, 50 + turn_pid);
         //float rightmotorcontrol = maxlimit(100, 50 - turn_pid);
 
-        Serial.print("Left motor control: " + String(leftmotorcontrol));
-        Serial.println(", Right motor control: " + String(rightmotorcontrol));
-        Serial.println("Turn pid: "+String(turn_pid));
+        //Serial.print("Left motor control: " + String(leftmotorcontrol));
+        //Serial.println(", Right motor control: " + String(rightmotorcontrol));
+        //Serial.println("Turn pid: "+String(turn_pid));
 
         motorrotate(leftmotorcontrol, motor1);
         motorrotate(rightmotorcontrol, motor2);
