@@ -168,7 +168,7 @@ void rover_rotate(float theta_reqd) {
     current_theta_error =
         current_theta_error - (delta_theta_left + delta_theta_right) / 2;
 
-    Serial.println("Current theta error"+String(current_theta_error));
+    //Serial.println("Current theta error"+String(current_theta_error));
     current_integral_theta_error =
         current_integral_theta_error + current_theta_error;
 

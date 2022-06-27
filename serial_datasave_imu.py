@@ -13,7 +13,7 @@ baud = 9600                     # Must match Arduino baud rate
 timeout = 5                       # Seconds
 filename = "../data_optical/imu_data/testfile_" + str(datetime.datetime.now().strftime("%y_%m_%d_%H_%M_%S_%p")) + ".csv"
 max_num_readings = 32000
-header_list = ["deltat","deltat2","IMU1_yaw68","IMU2_yaw69","IMU_yaw_ave"]
+header_list =["deltat","deltat2","current_IMU1_yaw68","current_IMU2_yaw69","IMU1_yaw68","IMU1_yaw68","delta_theta_left","delta_theta_right"]
  
  
  
