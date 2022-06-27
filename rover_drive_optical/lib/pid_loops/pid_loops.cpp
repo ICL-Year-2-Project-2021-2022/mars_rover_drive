@@ -54,7 +54,7 @@ void rover_straight(float dist_reqd) {
       Serial.println("Here");
     }
     else {
-      timeRequired1 = 1500;
+      timeRequired1 = 1550;
     }
     float current_dist_error = dist_reqd;
     float current_integral_dist_error = 0;
@@ -163,7 +163,7 @@ float angle_difference_2pi(float prev, float curr) {
 void rover_rotate(float theta_reqd) {
    unsigned long timeSinceStart2 = millis();
   unsigned long timeRequired2 = 0;
-  timeRequired2 = 1850*theta_reqd*2/PI;
+  timeRequired2 = abs(1850*theta_reqd*2/PI);
     float current_theta_error = theta_reqd;
     float current_offset_error = 0;
     // reset_imu_angle();
@@ -214,8 +214,15 @@ void rover_rotate(float theta_reqd) {
         }
         float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
         float offset_pid = offset_pid_loop(current_offset_error, prev_offset_error);
-        float leftmotorcontrol = maxlimit(100, theta_pid + offset_pid);
-        float rightmotorcontrol = maxlimit(100, -theta_pid + offset_pid);
+        float leftmotorcontrol;
+        float rightmotorcontrol;
+        if (theta_reqd > 0) {
+          leftmotorcontrol = maxlimit(100, 40 + offset_pid); 
+          rightmotorcontrol = maxlimit(100, -40 + offset_pid);
+        } else {
+          leftmotorcontrol = maxlimit(100, -40 + offset_pid); 
+          rightmotorcontrol = maxlimit(100, 40 + offset_pid);
+        }
 
         motorrotate(leftmotorcontrol, motor1);
         motorrotate(rightmotorcontrol, motor2);
