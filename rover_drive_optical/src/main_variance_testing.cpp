@@ -59,16 +59,18 @@ void setup() {
 }
 
 void loop() {
-  rover_straight(100);
+  //rover_straight(100);
   delay(1000);
   //rover_straight(150);
-  rover_rotate(PI/2);
+  //rover_straight(150);
   
-  delay(1000);
+  //delay(1000);
   /*rover_straight(150);
-  delay(1000);
-  rover_rotate(PI/2);
   delay(1000);*/
+  rover_rotate(PI/2);
+  delay(1000);
+  rover_rotate(PI/4);
+ // delay(1000);
   //rover_straight(300);
   //delay(1000);
   //rover_rotate(-PI / 4);

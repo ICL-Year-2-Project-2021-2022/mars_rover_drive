@@ -29,7 +29,7 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
   float turn_derivative = turn_error - prev_turn_error;
-  float kp_turn = 1.75;
+  float kp_turn = 0.75f;
   float kd_turn = 0.;
   float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
   return turn_pid;
@@ -47,12 +47,26 @@ float offset_pid_loop(float offset_error, float prev_offset_error) {
 // motor control straight
 // takes distance in mm
 void rover_straight(float dist_reqd) {
+    unsigned long timeSinceStart1 = millis();
+    unsigned long timeRequired1 = 0;
+    if (dist_reqd == 100.0f){
+      timeRequired1 = 1050;
+      Serial.println("Here");
+    }
+    else {
+      timeRequired1 = 1500;
+    }
     float current_dist_error = dist_reqd;
     float current_integral_dist_error = 0;
     float current_turn_error = 0;
     float timeoutcounter = 0;
     // reset_imu_angle();
     while (abs(current_dist_error) > max_dist_error) {
+        unsigned long delta = (millis() - timeSinceStart1);
+        if(delta > timeRequired1){
+          Serial.println("Break");
+          break;
+        }
         //float deltat = 0;
         check_cumulative_dist();
         /*check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
@@ -68,26 +82,28 @@ void rover_straight(float dist_reqd) {
         float prev_turn_error = current_turn_error;
         current_turn_error = delta_v_mm_right - delta_v_mm_left;
         // condition to exit loop
-        /*if (abs(current_dist_error) < max_dist_error) {
+        if (abs(current_dist_error) < max_dist_error) {
             break;
-        }*/
+        }
         // or prev_dist_error == current_dist_error;
-        if(abs(prev_dist_error-current_dist_error) <= 0.5){
+        /*if(abs(prev_dist_error-current_dist_error) <= 0.5){
           timeoutcounter++;
         }
         /*if (timeoutcounter > 10) {
             break;
         }*/
+        /*
         if ((abs(current_turn_error) < max_turn_error)|| (abs(current_dist_error)<20)){
           current_turn_error=0;
         }
+        */
 
         float R_pid = R_pid_loop(current_dist_error, prev_dist_error,
                                  current_integral_dist_error);
         float turn_pid = turn_pid_loop(current_turn_error, prev_turn_error);
 
-        float leftmotorcontrol = maxlimit(100, 40 - turn_pid);
-        float rightmotorcontrol = maxlimit(100, 40 + turn_pid);
+        float leftmotorcontrol = maxlimit(100, 60 + turn_pid);
+        float rightmotorcontrol = maxlimit(100, 60 - turn_pid);
 
         
         //float leftmotorcontrol = maxlimit(100, 50 + turn_pid);
@@ -112,6 +128,7 @@ void rover_straight(float dist_reqd) {
         }*/
         //Serial.println("abs(current_dist_error)" + String(abs(current_dist_error)) + "" + String(max_dist_error));
         delay(5);
+
     }
     motorrampdown();
     robot.brake(motor1);
@@ -144,10 +161,18 @@ float angle_difference_2pi(float prev, float curr) {
 }
 
 void rover_rotate(float theta_reqd) {
+   unsigned long timeSinceStart2 = millis();
+  unsigned long timeRequired2 = 0;
+  timeRequired2 = 1850*theta_reqd*2/PI;
     float current_theta_error = theta_reqd;
     float current_offset_error = 0;
     // reset_imu_angle();
     while (abs(current_theta_error) > max_theta_error) {
+      unsigned long delta = (millis() - timeSinceStart2);
+        if(delta > timeRequired2){
+          Serial.println("Break");
+          break;
+        }
         check_cumulative_dist();
         /*float deltat = 0;
         check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
