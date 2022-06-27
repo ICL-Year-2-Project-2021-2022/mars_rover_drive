@@ -95,7 +95,7 @@ void rover_straight(float dist_reqd) {
 
         Serial.print("Left motor control: " + String(leftmotorcontrol));
         Serial.println(", Right motor control: " + String(rightmotorcontrol));
-        Serial.println("Turn pid: "+String(turn_pid));
+        Serial.println("Turn pid: "+String(current_dist_error));
 
         motorrotate(leftmotorcontrol, motor1);
         motorrotate(rightmotorcontrol, motor2);
