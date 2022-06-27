@@ -1,19 +1,130 @@
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
 #include <IMU.h>
-
-Adafruit_MPU6050 mpu2;
-
+#include <SensorFusion.h>
+#include <Wire.h>
 SF fusion;
+SF fusion2;
 
-float current_yaw = 0.0;
+Adafruit_MPU6050 mpu1;
+Adafruit_MPU6050 mpu2;
 
 float rad_to_deg = 180 / 3.141592654;
 
+float gx, gy, gz, ax, ay, az, temp;
+float gx2, gy2, gz2, ax2, ay2, az2, temp2;
+float pitch, roll, yaw;
+float pitch2, roll2, yaw2;
+float current_yaw = 0.0;
+float current_yaw2 = 0.0;
+float deltat;
+float deltat2;
+float theta_left_1, theta_left_2, theta_left_3, theta_right_1, theta_right_2, theta_right_3;
+
 void imu_setup() {
-  mpu2.setAccelerometerRange(MPU6050_RANGE_8_G);
+  mpu1.setAccelerometerRange(MPU6050_RANGE_4_G);
+  mpu1.setGyroRange(MPU6050_RANGE_500_DEG);
+  mpu1.setFilterBandwidth(MPU6050_BAND_94_HZ);
+  mpu2.setAccelerometerRange(MPU6050_RANGE_4_G);
   mpu2.setGyroRange(MPU6050_RANGE_500_DEG);
-  mpu2.setFilterBandwidth(MPU6050_BAND_5_HZ);
+  mpu2.setFilterBandwidth(MPU6050_BAND_94_HZ);
 }
 
+/*// eliminate drift by zeroing at the beginning of pid loop
+void reset_imu_angle() {
+  current_yaw = baseline_yaw2;
+  current_yaw2 = baseline_yaw2;
+}*/
+
+// sensor fusion approach
+void check_imu_angle(float& theta_left,
+                     float& theta_right,
+                     float& total_theta_left_imu,
+                     float& total_theta_right_imu,
+                     float& deltat) {
+  /* Get new sensor events with the readings */
+  sensors_event_t a, g, temp;
+  mpu1.getEvent(&a, &g, &temp);
+  sensors_event_t a2, g2, temp2;
+  mpu2.getEvent(&a2, &g2, &temp2);
+
+  deltat = fusion.deltatUpdate();
+  deltat2 = fusion2.deltatUpdate();
+  // fusion.MahonyUpdate(gx, gy, gz, ax, ay, az, mx, my, mz, deltat);  //mahony
+  // is suggested if there isn't the mag
+  fusion.MahonyUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
+                      a.acceleration.y, a.acceleration.z, deltat);
+  fusion2.MahonyUpdate(g2.gyro.x, g2.gyro.y, g2.gyro.z, a2.acceleration.x,
+                       a2.acceleration.y, a2.acceleration.z, deltat2);
+
+  // fusion.MadgwickUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
+  //                      a.acceleration.y, a.acceleration.z, deltat);
+
+  yaw = -fusion.getYawRadians();
+  yaw2 = fusion2.getYawRadians();
+
+  theta_left_3 = theta_left_2;
+  theta_right_3 = theta_right_2;
+  theta_left_2 = theta_left_1;
+  theta_right_2 = theta_right_1;
+  theta_left_1 =  ((yaw - current_yaw)+(yaw2-current_yaw2))/2;
+  theta_right_1 = ((yaw - current_yaw)+(yaw2-current_yaw2))/2;
+  
+  if (abs(theta_left_1 - theta_left_2) > abs(theta_left_2 - theta_left_3)) {
+    if (abs(theta_left_1 - theta_left_2) > 0.05) {
+      fusion.reset();
+      fusion2.reset();
+      current_yaw = 0.0;
+      current_yaw2 = 0.0;
+      Serial.println("Reset-----------------------------");
+    }
+  } else {
+    if( abs(theta_left_2 - theta_left_3) > 0.05) {
+      fusion.reset();
+      fusion2.reset();
+      current_yaw = 0.0;
+      current_yaw2 = 0.0;
+      Serial.println("Reset-----------------------------");
+    }
+  }
+   if (abs(theta_right_1 - theta_right_2) > abs(theta_right_2 - theta_right_3)) {
+    if (abs(theta_right_1 - theta_right_2) > 0.05) {
+      fusion.reset();
+      fusion2.reset();
+      current_yaw = 0.0;
+      current_yaw2 = 0.0;
+      Serial.println("Reset-----------------------------");
+    }
+  } else {
+    if( abs(theta_right_2 - theta_right_3) > 0.05) {
+      fusion.reset();
+      fusion2.reset();
+      current_yaw = 0.0;
+      current_yaw2 = 0.0;
+            Serial.println("Reset-----------------------------");
+    }
+  }
+
+
+  current_yaw = current_yaw + theta_left;
+  current_yaw2 = current_yaw2 + theta_right;
+
+  total_theta_left_imu = current_yaw;
+  total_theta_right_imu = current_yaw2;
+  /*if (calculated_theta_left > -0.8f && calculated_theta_left < 0.8f) {
+      theta_left = calculated_theta_left;
+      total_theta_left = total_theta_left + theta_left;
+      current_yaw = total_theta_left;
+  }
+  if (calculated_theta_right > -0.8f && calculated_theta_right < 0.8f) {
+      theta_right = calculated_theta_right;
+      total_theta_right = total_theta_right + theta_right;
+      current_yaw2 = total_theta_right;
+  }*/
+ Serial.println(String(current_yaw)+","+String(current_yaw2)+","+String(yaw)+","+String(yaw2));
+}
+
+/*
 float get_total_y(float time) {
   sensors_event_t a, g, temp;
   mpu2.getEvent(&a, &g, &temp);
@@ -78,4 +189,4 @@ void check_imu_angle(int& delta_theta_left,
   total_theta_left = total_theta_left + delta_theta_left;
   total_theta_right = total_theta_left + delta_theta_left;
 }
-#endif
+#endif*/

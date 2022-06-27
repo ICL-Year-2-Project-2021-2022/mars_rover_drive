@@ -1,0 +1,5 @@
+C:/Users/vacla/Projects/mars_rover_drive/rover_optical_test/cmake-build-debug-mingw/CMakeFiles/Production.dir
+C:/Users/vacla/Projects/mars_rover_drive/rover_optical_test/cmake-build-debug-mingw/CMakeFiles/edit_cache.dir
+C:/Users/vacla/Projects/mars_rover_drive/rover_optical_test/cmake-build-debug-mingw/CMakeFiles/Debug.dir
+C:/Users/vacla/Projects/mars_rover_drive/rover_optical_test/cmake-build-debug-mingw/CMakeFiles/Z_DUMMY_TARGET.dir
+C:/Users/vacla/Projects/mars_rover_drive/rover_optical_test/cmake-build-debug-mingw/CMakeFiles/rebuild_cache.dir

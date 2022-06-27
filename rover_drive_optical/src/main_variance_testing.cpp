@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <LED_Strip.h>
 #include <pid_loops.h>
-//#include <IMU.h>
+#include <IMU.h>
 
 void setup() {
   Serial.begin(9600);
@@ -40,19 +40,43 @@ void setup() {
 
   // imu setup
   imu_setup();
-  if (mpu2.begin()) {
+  if (!mpu1.begin(0x69)) {
+    Serial.println("Failed to find MPU6050 chip");
+    while (1) {
+      delay(10);
+    }
+  }
+  // ad0 must be grounded to change i2c address
+  if (!mpu2.begin(0x68)) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
       delay(10);
     }
   }
 
+  delay(10000);
+
+  // led setup
   led_begin();
 }
 
 void loop() {
-  rover_straight(300);
-  delay(3000);
-  rover_rotate(PI / 2);
-  delay(3000);
+  //rover_straight(200);
+  //delay(1000);
+  rover_rotate(PI/2);
+  delay(1000);
+  //rover_straight(100);
+  //delay(1000);
+  //rover_rotate(PI / 4);
+  //delay(1000);
+  //rover_straight(300);
+  //delay(1000);
+  //rover_rotate(-PI / 4);
+  //rover_straight(120);
+  //delay(2000);
+  //rover_straight(80);
+  //delay(2000);
+  //rover_straight(-400);
+  //rover_rotate(PI / 2);
+  //delay(3000);
 }

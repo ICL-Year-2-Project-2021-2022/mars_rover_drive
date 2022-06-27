@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
+#include <IMU.h>
 #include <SPI.h>
 
 // these pins may be different on different boards
@@ -86,6 +87,14 @@ int distance_x_left = 0;
 int distance_y_left = 0;
 int distance_x_right = 0;
 int distance_y_right = 0;
+
+float theta_left = 0;
+float theta_right = 0;
+
+float total_theta_left = 0;
+float total_theta_right = 0;
+
+#include <IMU.h>
 
 volatile byte movementflag = 0;
 volatile int xydat[2];
@@ -261,6 +270,18 @@ char asciiart(int k) {
 
 byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
 
+const float au_2_mm_left = 7.77;
+const float au_2_mm_right = 7.45;
+const float sensor_displacement = 130;
+
+float get_delta_theta(float delta_u_mm,
+                      float delta_v_mm,
+                      float sensor_displacement_local) {
+  float reference_theta = acos(1 - (pow(delta_u_mm, 2) + pow(delta_v_mm, 2)) /
+                                       (2 * pow(sensor_displacement_local, 2)));
+  return (delta_u_mm < 0) ? reference_theta : -reference_theta;
+}
+
 void loop() {
 #if 0
   /*
@@ -355,12 +376,28 @@ void loop() {
   total_x1_right = total_x1_right + distance_x_right;
   total_y1_right = total_y1_right + distance_y_right;
 
-  // Serial.print('\n');
+#if 1
+  theta_left =
+      get_delta_theta(distance_x_left / au_2_mm_left,
+                      distance_y_left / au_2_mm_left, sensor_displacement);
+  theta_right =
+      get_delta_theta(distance_x_right / au_2_mm_right,
+                      distance_y_right / au_2_mm_right, sensor_displacement);
+
+  total_theta_left = total_theta_left + theta_left;
+  total_theta_right = total_theta_right + theta_right;
+
+#elif 0
+  check_imu_angle(theta_left, theta_right, total_theta_left, total_theta_right);
+#else
+  check_imu_angle_naive(theta_left, theta_right, total_theta_left,
+                        total_theta_right);
+#endif
+
   Serial.print(md_left.squal);
   Serial.print(",");
   Serial.print(md_right.squal);
   Serial.print(",");
-  // Serial.println("Distance_x = " + String(total_x));
   Serial.print(distance_x_left);
   Serial.print(",");
   Serial.print(distance_y_left);
@@ -369,8 +406,10 @@ void loop() {
   Serial.print(",");
   Serial.print(total_y1_left);
   Serial.print(",");
-  // Serial.println("Distance_y = " + String(total_y));
-  // Serial.print('\n');
+  Serial.print(theta_left);
+  Serial.print(",");
+  Serial.print(total_theta_left);
+  Serial.print(",");
   Serial.print(distance_x_right);
   Serial.print(",");
   Serial.print(distance_y_right);
@@ -378,6 +417,11 @@ void loop() {
   Serial.print(total_x1_right);
   Serial.print(",");
   Serial.println(total_y1_right);
+  Serial.println(",");
+  Serial.print(theta_right);
+  Serial.print(",");
+  Serial.print(total_theta_right);
+  Serial.print(",");
 
   delay(100);
 
