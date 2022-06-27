@@ -7,7 +7,7 @@
 // max errors
 const float max_dist_error = 1.5;
 const float max_turn_error = 1;
-const float max_theta_error = 0.03;
+const float max_theta_error = 0.017;
 const float max_offset_error = 2;
 
 // distance PD loop

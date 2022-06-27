@@ -215,10 +215,10 @@ void loop() {
 
   roll = fusion.getRoll();
   pitch = fusion.getPitch();
-  yaw = fusion.getYaw();
+  yaw = fusion.getYawRadians();
   roll2 = fusion2.getRoll();
   pitch2 = fusion2.getPitch();
-  yaw2 = fusion2.getYaw();
+  yaw2 = fusion2.getYawRadians();
 
 #ifdef EULER_DATA
   // Serial.println("Pitch:\t" + String(pitch) + "\t\tRoll:\t" + String(roll) +
