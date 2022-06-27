@@ -19,6 +19,7 @@ float current_yaw = 0.0;
 float current_yaw2 = 0.0;
 float deltat;
 float deltat2;
+float theta_left_1, theta_left_2, theta_left_3, theta_right_1, theta_right_2, theta_right_3;
 
 void imu_setup() {
   mpu1.setAccelerometerRange(MPU6050_RANGE_4_G);
@@ -59,17 +60,57 @@ void check_imu_angle(float& theta_left,
   // fusion.MadgwickUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
   //                      a.acceleration.y, a.acceleration.z, deltat);
 
-  yaw = fusion.getYawRadians();
+  yaw = -fusion.getYawRadians();
   yaw2 = fusion2.getYawRadians();
 
-  theta_left = ((yaw - current_yaw) + (yaw2 - current_yaw2)) / 2;
-  theta_right = ((yaw - current_yaw) + (yaw2 - current_yaw2)) / 2;
+  theta_left_3 = theta_left_2;
+  theta_right_3 = theta_right_2;
+  theta_left_2 = theta_left_1;
+  theta_right_2 = theta_right_1;
+  theta_left_1 =  ((yaw - current_yaw)+(yaw2-current_yaw2))/2;
+  theta_right_1 = ((yaw - current_yaw)+(yaw2-current_yaw2))/2;
+  
+  if (abs(theta_left_1 - theta_left_2) > abs(theta_left_2 - theta_left_3)) {
+    if (abs(theta_left_1 - theta_left_2) > 0.05) {
+      fusion.reset();
+      fusion2.reset();
+      current_yaw = 0.0;
+      current_yaw2 = 0.0;
+      Serial.println("Reset-----------------------------");
+    }
+  } else {
+    if( abs(theta_left_2 - theta_left_3) > 0.05) {
+      fusion.reset();
+      fusion2.reset();
+      current_yaw = 0.0;
+      current_yaw2 = 0.0;
+      Serial.println("Reset-----------------------------");
+    }
+  }
+   if (abs(theta_right_1 - theta_right_2) > abs(theta_right_2 - theta_right_3)) {
+    if (abs(theta_right_1 - theta_right_2) > 0.05) {
+      fusion.reset();
+      fusion2.reset();
+      current_yaw = 0.0;
+      current_yaw2 = 0.0;
+      Serial.println("Reset-----------------------------");
+    }
+  } else {
+    if( abs(theta_right_2 - theta_right_3) > 0.05) {
+      fusion.reset();
+      fusion2.reset();
+      current_yaw = 0.0;
+      current_yaw2 = 0.0;
+            Serial.println("Reset-----------------------------");
+    }
+  }
 
-  total_theta_left_imu = total_theta_left_imu + theta_left;
-  total_theta_right_imu = total_theta_right_imu + theta_right;
 
-  current_yaw = total_theta_left_imu;
-  current_yaw2 = total_theta_right_imu;
+  current_yaw = current_yaw + theta_left;
+  current_yaw2 = current_yaw2 + theta_right;
+
+  total_theta_left_imu = current_yaw;
+  total_theta_right_imu = current_yaw2;
   /*if (calculated_theta_left > -0.8f && calculated_theta_left < 0.8f) {
       theta_left = calculated_theta_left;
       total_theta_left = total_theta_left + theta_left;
@@ -80,6 +121,7 @@ void check_imu_angle(float& theta_left,
       total_theta_right = total_theta_right + theta_right;
       current_yaw2 = total_theta_right;
   }*/
+ Serial.println(String(current_yaw)+","+String(current_yaw2)+","+String(yaw)+","+String(yaw2));
 }
 
 /*
