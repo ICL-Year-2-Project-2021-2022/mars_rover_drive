@@ -59,40 +59,42 @@ void setup() {
 }
 
 void loop() {
+  // test square clockwise
+  /*
   rover_straight(100);
   delay(2000);
-  //rover_straight(150);
-  //rover_straight(150);
-  
-  //delay(1000);
-  /*rover_straight(150);
-  delay(1000);*/
-  rover_rotate(PI/4);
-  delay(2000);
   rover_rotate(PI/2);
-  delay(2000);
-  rover_rotate(3 * PI/4);
-  delay(2000);
-  rover_rotate(PI);
-  delay(10000);
-  rover_rotate(-PI/4);
-  delay(2000);
+  delay(1000);
+  */
+ // test square anti clockwise
+ /*
+ rover_straight(100);
+ delay(1000);
+ rover_rotate(-PI/2);
+ delay(1000);
+ */
+
+  // test all angles
+  
+  rover_rotate(PI/2);
+  delay(5000);
   rover_rotate(-PI/2);
-  delay(2000);
-  rover_rotate(-3 * PI/4);
-  delay(2000);
-  rover_rotate(-PI);
-  delay(2000);
-  //rover_rotate(-PI/4);
- // delay(1000);
-  //rover_straight(300);
-  //delay(1000);
-  //rover_rotate(-PI / 4);
-  //rover_straight(120);
-  //delay(2000);
-  //rover_straight(80);
-  //delay(2000);
-  //rover_straight(-400);
-  //rover_rotate(PI / 2);
-  //delay(3000);
+  delay(5000);
+  rover_rotate(PI/4);
+  delay(5000);
+  rover_rotate(-PI/4);
+  delay(5000);
+
+/*
+  rover_straight(100);
+  delay(5000);
+  rover_rotate(PI/4);
+  delay(5000);
+  rover_rotate(PI/2);
+  delay(5000);
+  rover_straight(150);
+  delay(5000);
+  rover_straight(50);
+  delay(5000);
+  */
 }

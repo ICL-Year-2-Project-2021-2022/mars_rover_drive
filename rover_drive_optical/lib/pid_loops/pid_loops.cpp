@@ -29,7 +29,7 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
   float turn_derivative = turn_error - prev_turn_error;
-  float kp_turn = 0.75f;
+  float kp_turn = 0.25f;
   float kd_turn = 0.;
   float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
   return turn_pid;
@@ -49,13 +49,7 @@ float offset_pid_loop(float offset_error, float prev_offset_error) {
 void rover_straight(float dist_reqd) {
     unsigned long timeSinceStart1 = millis();
     unsigned long timeRequired1 = 0;
-    if (dist_reqd == 100.0f){
-      timeRequired1 = 1150;
-      Serial.println("Here");
-    }
-    else {
-      timeRequired1 = 1650;
-    }
+    timeRequired1 = dist_reqd*11.25; //in millisecond per mm
     float current_dist_error = dist_reqd;
     float current_integral_dist_error = 0;
     float current_turn_error = 0;
@@ -102,8 +96,8 @@ void rover_straight(float dist_reqd) {
                                  current_integral_dist_error);
         float turn_pid = turn_pid_loop(current_turn_error, prev_turn_error);
 
-        float leftmotorcontrol = maxlimit(100, 60 + turn_pid);
-        float rightmotorcontrol = maxlimit(100, 60 - turn_pid);
+        float leftmotorcontrol = maxlimit(100, 60 - turn_pid);
+        float rightmotorcontrol = maxlimit(100, 60 + turn_pid);
 
         
         //float leftmotorcontrol = maxlimit(100, 50 + turn_pid);
@@ -130,11 +124,10 @@ void rover_straight(float dist_reqd) {
         delay(5);
 
     }
-    motorrampdown();
+    
     robot.brake(motor1);
     robot.brake(motor2);
-    last_speed_1 = 0;
-    last_speed_2 = 0;
+    
 }
 
 float modulo_2pi(float input) {
@@ -163,7 +156,7 @@ float angle_difference_2pi(float prev, float curr) {
 void rover_rotate(float theta_reqd) {
    unsigned long timeSinceStart2 = millis();
   unsigned long timeRequired2 = 0;
-  timeRequired2 = abs(1750*theta_reqd*2/PI);
+  timeRequired2 = abs(1717*theta_reqd*2/PI);
     float current_theta_error = theta_reqd;
     float current_offset_error = 0;
     // reset_imu_angle();
@@ -217,11 +210,11 @@ void rover_rotate(float theta_reqd) {
         float leftmotorcontrol;
         float rightmotorcontrol;
         if (theta_reqd > 0) {
-          leftmotorcontrol = maxlimit(100, 40 + offset_pid); 
-          rightmotorcontrol = maxlimit(100, -40 + offset_pid);
+          leftmotorcontrol = maxlimit(100, 55 + offset_pid); 
+          rightmotorcontrol = maxlimit(100, -55 + offset_pid);
         } else {
-          leftmotorcontrol = maxlimit(100, -60 + offset_pid); 
-          rightmotorcontrol = maxlimit(100, 60 + offset_pid);
+          leftmotorcontrol = maxlimit(100, -55 + offset_pid); 
+          rightmotorcontrol = maxlimit(100, 55 + offset_pid);
         }
 
         motorrotate(leftmotorcontrol, motor1);
@@ -245,12 +238,9 @@ void rover_rotate(float theta_reqd) {
 
         delay(15);
     }
-    motorrampdown();
     robot.brake(motor1);
     robot.brake(motor2);
     Serial.println("exiting the loop");
-    last_speed_1 = 0;
-    last_speed_2 = 0;
     
 }
 
