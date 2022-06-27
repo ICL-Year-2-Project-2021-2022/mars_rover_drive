@@ -22,8 +22,8 @@ float theta_pid_loop(float theta_error,
                      float prev_theta_error,
                      float integral_theta_error) {
   float theta_derivative = theta_error - prev_theta_error;
-  float kp_theta = 25;  // change
-  float kd_theta = 5;
+  float kp_theta = 40;  // change
+  float kd_theta = 9;
   float ki_theta = 0.0;
   float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative +
                     ki_theta * integral_theta_error;
@@ -118,11 +118,13 @@ void rover_straight(float dist_reqd) {
     }*/
     // Serial.println("abs(current_dist_error)" +
     // String(abs(current_dist_error)) + "" + String(max_dist_error));
-    delay(5);
+    delay(10);
   }
+  motorramptozero();
   robot.brake(motor1);
   robot.brake(motor2);
-  last_speed = 0;
+  last_speed_1 = 0;
+  last_speed_2 = 0;
 }
 
 float modulo_2pi(float input) {
@@ -186,10 +188,12 @@ void rover_rotate(float theta_reqd) {
     if (timeoutcounter > 200 || (timeSinceStart - millis())/1000 > 10) {
       break;
     }*/
+    /*
     if ((abs(current_offset_error) < max_offset_error) ||
         (abs(current_theta_error) < 0.4)) {
       current_offset_error = 0;
     }
+    */
     float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error,
                                      current_integral_theta_error);
     float offset_pid = offset_pid_loop(current_offset_error, prev_offset_error);
@@ -222,10 +226,13 @@ void rover_rotate(float theta_reqd) {
 
     delay(20);
   }
+
+  motorramptozero();
   robot.brake(motor1);
   robot.brake(motor2);
   Serial.println("exiting the loop");
-  last_speed = 0;
+  last_speed_1 = 0;
+  last_speed_2 = 0;
 }
 
 /*

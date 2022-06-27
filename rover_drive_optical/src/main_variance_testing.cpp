@@ -65,6 +65,9 @@ void loop() {
   //delay(1000);
   rover_rotate(PI/2);
   delay(1000);
+  //rover_rotate(PI/4);
+  //delay(1000);
+  //rover_rotate(3*PI/2);
   //rover_straight(100);
   //delay(1000);
   //rover_rotate(PI / 4);
