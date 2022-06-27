@@ -5,8 +5,8 @@
 #include "../global.h"
 
 // max errors
-const float max_dist_error = 1.5;
-const float max_turn_error = 1;
+const float max_dist_error = 3;
+const float max_turn_error = 0.5;
 const float max_theta_error = 0.03;
 const float max_offset_error = 2;
 

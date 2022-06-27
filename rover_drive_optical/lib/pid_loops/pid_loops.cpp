@@ -8,9 +8,9 @@ float R_pid_loop(float dist_error,
                  float prev_dist_error,
                  float integral_error) {
   float dist_derivative = dist_error - prev_dist_error;
-  float kp_dist = 0.5;
+  float kp_dist = 0.8;
   float ki_dist = 0;
-  float kd_dist = 0.08;
+  float kd_dist = 0.1262;
   float R_pid = kp_dist * dist_error + kd_dist * dist_derivative +
                 ki_dist * integral_error;
   R_pid = maxlimit(100, R_pid);
@@ -29,8 +29,8 @@ float theta_pid_loop(float theta_error, float prev_theta_error) {
 // turn PD loop
 float turn_pid_loop(float turn_error, float prev_turn_error) {
   float turn_derivative = turn_error - prev_turn_error;
-  float kp_turn = 0.35;
-  float kd_turn = 0.07;
+  float kp_turn = 1.75;
+  float kd_turn = 0.;
   float turn_pid = kp_turn * turn_error + kd_turn * turn_derivative;
   return turn_pid;
 }
@@ -75,10 +75,10 @@ void rover_straight(float dist_reqd) {
         if(abs(prev_dist_error-current_dist_error) <= 0.5){
           timeoutcounter++;
         }
-        if (timeoutcounter > 10) {
+        /*if (timeoutcounter > 10) {
             break;
-        }
-        if ((abs(current_turn_error) < max_turn_error)|| (abs(current_dist_error)<10)){
+        }*/
+        if ((abs(current_turn_error) < max_turn_error)|| (abs(current_dist_error)<20)){
           current_turn_error=0;
         }
 
@@ -86,8 +86,8 @@ void rover_straight(float dist_reqd) {
                                  current_integral_dist_error);
         float turn_pid = turn_pid_loop(current_turn_error, prev_turn_error);
 
-        float leftmotorcontrol = maxlimit(100, R_pid + turn_pid);
-        float rightmotorcontrol = maxlimit(100, R_pid - turn_pid);
+        float leftmotorcontrol = maxlimit(100, 40 - turn_pid);
+        float rightmotorcontrol = maxlimit(100, 40 + turn_pid);
 
         
         //float leftmotorcontrol = maxlimit(100, 50 + turn_pid);
@@ -113,9 +113,11 @@ void rover_straight(float dist_reqd) {
         //Serial.println("abs(current_dist_error)" + String(abs(current_dist_error)) + "" + String(max_dist_error));
         delay(5);
     }
+    motorrampdown();
     robot.brake(motor1);
     robot.brake(motor2);
-    last_speed = 0;
+    last_speed_1 = 0;
+    last_speed_2 = 0;
 }
 
 float modulo_2pi(float input) {
@@ -211,10 +213,13 @@ void rover_rotate(float theta_reqd) {
 
         delay(15);
     }
+    motorrampdown();
     robot.brake(motor1);
     robot.brake(motor2);
     Serial.println("exiting the loop");
-    last_speed = 0;
+    last_speed_1 = 0;
+    last_speed_2 = 0;
+    
 }
 
 /*
