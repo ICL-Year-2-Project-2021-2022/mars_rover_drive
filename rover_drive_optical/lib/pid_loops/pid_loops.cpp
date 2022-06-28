@@ -47,201 +47,204 @@ float offset_pid_loop(float offset_error, float prev_offset_error) {
 // motor control straight
 // takes distance in mm
 void rover_straight(float dist_reqd) {
-    unsigned long timeSinceStart1 = millis();
-    unsigned long timeRequired1 = 0;
-    timeRequired1 = dist_reqd*11.25; //in millisecond per mm
-    float current_dist_error = dist_reqd;
-    float current_integral_dist_error = 0;
-    float current_turn_error = 0;
-    float timeoutcounter = 0;
-    // reset_imu_angle();
-    while (abs(current_dist_error) > max_dist_error) {
-        unsigned long delta = (millis() - timeSinceStart1);
-        if(delta > timeRequired1){
-          Serial.println("Break");
-          break;
-        }
-        //float deltat = 0;
-        check_cumulative_dist();
-        /*check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
-                        total_theta_right, deltat);*/
-        //timeCounterStraightLoop += deltat;
-        
-        float prev_dist_error = current_dist_error;
-        current_dist_error =
-                current_dist_error - (delta_v_mm_left + delta_v_mm_right) / 2;
-        current_integral_dist_error =
-                current_integral_dist_error + current_dist_error;
-
-        float prev_turn_error = current_turn_error;
-        current_turn_error = delta_v_mm_right - delta_v_mm_left;
-        // condition to exit loop
-        if (abs(current_dist_error) < max_dist_error) {
-            break;
-        }
-        // or prev_dist_error == current_dist_error;
-        /*if(abs(prev_dist_error-current_dist_error) <= 0.5){
-          timeoutcounter++;
-        }
-        /*if (timeoutcounter > 10) {
-            break;
-        }*/
-        /*
-        if ((abs(current_turn_error) < max_turn_error)|| (abs(current_dist_error)<20)){
-          current_turn_error=0;
-        }
-        */
-
-        float R_pid = R_pid_loop(current_dist_error, prev_dist_error,
-                                 current_integral_dist_error);
-        float turn_pid = turn_pid_loop(current_turn_error, prev_turn_error);
-
-        float leftmotorcontrol = maxlimit(100, 60 - turn_pid);
-        float rightmotorcontrol = maxlimit(100, 60 + turn_pid);
-
-        
-        //float leftmotorcontrol = maxlimit(100, 50 + turn_pid);
-        //float rightmotorcontrol = maxlimit(100, 50 - turn_pid);
-
-        Serial.print("Left motor control: " + String(leftmotorcontrol));
-        Serial.println(", Right motor control: " + String(rightmotorcontrol));
-        Serial.println("Turn pid: "+String(current_dist_error));
-
-        motorrotate(leftmotorcontrol, motor1);
-        motorrotate(rightmotorcontrol, motor2);
-        
-          
-        /*
-        if ((millis() - last_print) > 1000) {
-          Serial.println("Current dist error " + String(current_dist_error) +
-                         "Prev dist error " + String(prev_dist_error));
-          Serial.println("Left motor control " + String(leftmotorcontrol) +
-                         ", Right motor control " + String(rightmotorcontrol));
-          Serial.println("\n");
-          last_print = millis();
-        }*/
-        //Serial.println("abs(current_dist_error)" + String(abs(current_dist_error)) + "" + String(max_dist_error));
-        delay(5);
-
+  unsigned long timeSinceStart1 = millis();
+  unsigned long timeRequired1 = 0;
+  timeRequired1 = dist_reqd * 11.25;  // in millisecond per mm
+  float current_dist_error = dist_reqd;
+  float current_integral_dist_error = 0;
+  float current_turn_error = 0;
+  float timeoutcounter = 0;
+  // reset_imu_angle();
+  while (abs(current_dist_error) > max_dist_error) {
+    unsigned long delta = (millis() - timeSinceStart1);
+    if (delta > timeRequired1) {
+      Serial.println("Break");
+      break;
     }
-    
-    robot.brake(motor1);
-    robot.brake(motor2);
-    
+    // float deltat = 0;
+    check_cumulative_dist();
+    /*check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
+                    total_theta_right, deltat);*/
+    // timeCounterStraightLoop += deltat;
+
+    float prev_dist_error = current_dist_error;
+    current_dist_error =
+        current_dist_error - (delta_v_mm_left + delta_v_mm_right) / 2;
+    current_integral_dist_error =
+        current_integral_dist_error + current_dist_error;
+
+    float prev_turn_error = current_turn_error;
+    current_turn_error = delta_v_mm_right - delta_v_mm_left;
+    // condition to exit loop
+    if (abs(current_dist_error) < max_dist_error) {
+      break;
+    }
+    // or prev_dist_error == current_dist_error;
+    /*if(abs(prev_dist_error-current_dist_error) <= 0.5){
+      timeoutcounter++;
+    }
+    /*if (timeoutcounter > 10) {
+        break;
+    }*/
+    /*
+    if ((abs(current_turn_error) < max_turn_error)||
+    (abs(current_dist_error)<20)){ current_turn_error=0;
+    }
+    */
+
+    float R_pid = R_pid_loop(current_dist_error, prev_dist_error,
+                             current_integral_dist_error);
+    float turn_pid = turn_pid_loop(current_turn_error, prev_turn_error);
+
+    float leftmotorcontrol = maxlimit(100, 60 - turn_pid);
+    float rightmotorcontrol = maxlimit(100, 60 + turn_pid);
+
+    // float leftmotorcontrol = maxlimit(100, 50 + turn_pid);
+    // float rightmotorcontrol = maxlimit(100, 50 - turn_pid);
+
+    Serial.print("Left motor control: " + String(leftmotorcontrol));
+    Serial.println(", Right motor control: " + String(rightmotorcontrol));
+    Serial.println("Turn pid: " + String(current_dist_error));
+
+    motorrotate(leftmotorcontrol, motor1);
+    motorrotate(rightmotorcontrol, motor2);
+
+    /*
+    if ((millis() - last_print) > 1000) {
+      Serial.println("Current dist error " + String(current_dist_error) +
+                     "Prev dist error " + String(prev_dist_error));
+      Serial.println("Left motor control " + String(leftmotorcontrol) +
+                     ", Right motor control " + String(rightmotorcontrol));
+      Serial.println("\n");
+      last_print = millis();
+    }*/
+    // Serial.println("abs(current_dist_error)" +
+    // String(abs(current_dist_error)) + "" + String(max_dist_error));
+    delay(5);
+  }
+
+  robot.brake(motor1);
+  robot.brake(motor2);
 }
 
 float modulo_2pi(float input) {
-    int divd = floor(input / (2 * PI));
-    float rem = input - float(divd * 2 * PI);
-    return rem;
+  int divd = floor(input / (2 * PI));
+  float rem = input - float(divd * 2 * PI);
+  return rem;
 }
 
 float angle_2pi(float input) {
-    return modulo_2pi(abs(input));
+  return modulo_2pi(abs(input));
 }
 
 float angle_difference_2pi(float prev, float curr) {
-    float diff1 = abs(prev - curr);
-    float diff2 = abs(prev - curr + 2 * PI);
-    float diff3 = abs(prev - curr - 2 * PI);
-    if (diff1 < diff2 && diff1 < diff3) {
-        return prev - curr;
-    } else if (diff2 < diff1 && diff2 < diff3) {
-        return prev - curr + 2 * PI;
-    } else {
-        return prev - curr - 2 * PI;
-    }
+  float diff1 = abs(prev - curr);
+  float diff2 = abs(prev - curr + 2 * PI);
+  float diff3 = abs(prev - curr - 2 * PI);
+  if (diff1 < diff2 && diff1 < diff3) {
+    return prev - curr;
+  } else if (diff2 < diff1 && diff2 < diff3) {
+    return prev - curr + 2 * PI;
+  } else {
+    return prev - curr - 2 * PI;
+  }
 }
 
 void rover_rotate(float theta_reqd) {
-   unsigned long timeSinceStart2 = millis();
+  unsigned long timeSinceStart2 = millis();
   unsigned long timeRequired2 = 0;
-  timeRequired2 = abs(1717*theta_reqd*2/PI);
-    float current_theta_error = theta_reqd;
-    float current_offset_error = 0;
-    // reset_imu_angle();
-    while (abs(current_theta_error) > max_theta_error) {
-      unsigned long delta = (millis() - timeSinceStart2);
-        if(delta > timeRequired2){
-          Serial.println("Break");
-          break;
-        }
-        check_cumulative_dist();
-        /*float deltat = 0;
-        check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
-                        total_theta_right, deltat);
-        timeCounterRotateLoop += deltat;
+  timeRequired2 = abs(1717 * theta_reqd * 2 / PI);
+  float current_theta_error = theta_reqd;
+  float current_offset_error = 0;
+  // reset_imu_angle();
+  total_theta_left = 0.0;
+  total_theta_right = 0.0;
+  while (abs(current_theta_error) > max_theta_error) {
+    unsigned long delta = (millis() - timeSinceStart2);
+    if (total_theta_left)
+      if (delta > timeRequired2) {
+        Serial.println("Break");
+        break;
+      }
+    check_cumulative_dist();
+    check_imu_angle(delta_theta_left, delta_theta_right);
+    /*float deltat = 0;
+    check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
+                    total_theta_right, deltat);
+    timeCounterRotateLoop += deltat;
 */
-        /*if (timeCounterStraightLoop <= 1.57f) {
-            delta_theta_left = delta_theta_left + 0.0007f;
-            delta_theta_right = delta_theta_right + 0.0007f;
-        } else if (timeCounterStraightLoop <= 2.5f) {
-            delta_theta_left = delta_theta_left + 0.0019f;
-            delta_theta_right = delta_theta_right + 0.0019f;
-        } else if (timeCounterStraightLoop <= 3.5f) {
-            delta_theta_left = delta_theta_left + 0.0037f;
-            delta_theta_right = delta_theta_right + 0.0037f;
-        } else if (timeCounterStraightLoop <= 4.5f) {
-            delta_theta_left = delta_theta_left + 0.0028f;
-            delta_theta_right = delta_theta_right + 0.0028f;
-        } else if (timeCounterStraightLoop <= 10) {
-            delta_theta_left = delta_theta_left + 0.0001f;
-            delta_theta_right = delta_theta_right + 0.0001f;
-        } else {
-            delta_theta_left = delta_theta_left + 9E-05f;
-            delta_theta_right = delta_theta_right + 9E-05f;
-        }*/
+    /*if (timeCounterStraightLoop <= 1.57f) {
+        delta_theta_left = delta_theta_left + 0.0007f;
+        delta_theta_right = delta_theta_right + 0.0007f;
+    } else if (timeCounterStraightLoop <= 2.5f) {
+        delta_theta_left = delta_theta_left + 0.0019f;
+        delta_theta_right = delta_theta_right + 0.0019f;
+    } else if (timeCounterStraightLoop <= 3.5f) {
+        delta_theta_left = delta_theta_left + 0.0037f;
+        delta_theta_right = delta_theta_right + 0.0037f;
+    } else if (timeCounterStraightLoop <= 4.5f) {
+        delta_theta_left = delta_theta_left + 0.0028f;
+        delta_theta_right = delta_theta_right + 0.0028f;
+    } else if (timeCounterStraightLoop <= 10) {
+        delta_theta_left = delta_theta_left + 0.0001f;
+        delta_theta_right = delta_theta_right + 0.0001f;
+    } else {
+        delta_theta_left = delta_theta_left + 9E-05f;
+        delta_theta_right = delta_theta_right + 9E-05f;
+    }*/
 
-        float prev_theta_error = current_theta_error;
-        current_theta_error =
-                current_theta_error - (delta_theta_left + delta_theta_right) / 2;
+    float prev_theta_error = current_theta_error;
+    current_theta_error =
+        current_theta_error - (delta_theta_left + delta_theta_right) / 2;
 
-        float prev_offset_error = current_offset_error;
-        current_offset_error = delta_v_mm_right + delta_v_mm_left;
-        // condition to exit loop
-        /*if (abs(current_theta_error) < max_theta_error) {
-            break;
-        }*/
-        if ((abs(current_offset_error) < max_offset_error)|| (abs(current_theta_error)<0.4)){
-          current_offset_error=0;
-        }
-        float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
-        float offset_pid = offset_pid_loop(current_offset_error, prev_offset_error);
-        float leftmotorcontrol;
-        float rightmotorcontrol;
-        if (theta_reqd > 0) {
-          leftmotorcontrol = maxlimit(100, 55 + offset_pid); 
-          rightmotorcontrol = maxlimit(100, -55 + offset_pid);
-        } else {
-          leftmotorcontrol = maxlimit(100, -55 + offset_pid); 
-          rightmotorcontrol = maxlimit(100, 55 + offset_pid);
-        }
-
-        motorrotate(leftmotorcontrol, motor1);
-        motorrotate(rightmotorcontrol, motor2);
-
-        Serial.println("Rotate loop: current_theta_error - " + String(abs(current_theta_error)) + "; max_theta_error: "
-                       + String(max_theta_error) + " delta_theta_left: " + String(delta_theta_left) +
-                       "; delta_theta_right: " + String(delta_theta_right));
-
-        /*if ((millis() - last_print) > 1000) {
-          Serial.println("Total_theta: (" + String(total_theta_left) + "," +
-                         String(total_theta_right) + ")|Average: " +
-                         String((total_theta_left + total_theta_right) / 2));
-          Serial.println("Current theta error " + String(current_theta_error) +
-                         "Prev theta error " + String(prev_theta_error));
-          Serial.println("Left motor control " + String(leftmotorcontrol) +
-                         ", Right motor control " + String(rightmotorcontrol));
-          Serial.println("\n");
-          last_print = millis();
-        }*/
-
-        delay(15);
+    float prev_offset_error = current_offset_error;
+    current_offset_error = delta_v_mm_right + delta_v_mm_left;
+    // condition to exit loop
+    /*if (abs(current_theta_error) < max_theta_error) {
+        break;
+    }*/
+    if ((abs(current_offset_error) < max_offset_error) ||
+        (abs(current_theta_error) < 0.4)) {
+      current_offset_error = 0;
     }
-    robot.brake(motor1);
-    robot.brake(motor2);
-    Serial.println("exiting the loop");
-    
+    float theta_pid = theta_pid_loop(current_theta_error, prev_theta_error);
+    float offset_pid = offset_pid_loop(current_offset_error, prev_offset_error);
+    float leftmotorcontrol;
+    float rightmotorcontrol;
+    if (theta_reqd > 0) {
+      leftmotorcontrol = maxlimit(100, 55 + offset_pid);
+      rightmotorcontrol = maxlimit(100, -55 + offset_pid);
+    } else {
+      leftmotorcontrol = maxlimit(100, -55 + offset_pid);
+      rightmotorcontrol = maxlimit(100, 55 + offset_pid);
+    }
+
+    motorrotate(leftmotorcontrol, motor1);
+    motorrotate(rightmotorcontrol, motor2);
+
+    Serial.println("Rotate loop: current_theta_error - " +
+                   String(abs(current_theta_error)) +
+                   "; max_theta_error: " + String(max_theta_error) +
+                   " delta_theta_left: " + String(delta_theta_left) +
+                   "; delta_theta_right: " + String(delta_theta_right));
+
+    /*if ((millis() - last_print) > 1000) {
+      Serial.println("Total_theta: (" + String(total_theta_left) + "," +
+                     String(total_theta_right) + ")|Average: " +
+                     String((total_theta_left + total_theta_right) / 2));
+      Serial.println("Current theta error " + String(current_theta_error) +
+                     "Prev theta error " + String(prev_theta_error));
+      Serial.println("Left motor control " + String(leftmotorcontrol) +
+                     ", Right motor control " + String(rightmotorcontrol));
+      Serial.println("\n");
+      last_print = millis();
+    }*/
+
+    delay(15);
+  }
+  robot.brake(motor1);
+  robot.brake(motor2);
+  Serial.println("exiting the loop");
 }
 
 /*

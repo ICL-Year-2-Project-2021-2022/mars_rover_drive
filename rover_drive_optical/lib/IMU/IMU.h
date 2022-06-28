@@ -14,10 +14,9 @@ extern float current_yaw;
 extern float rad_to_deg;
 
 // float get_total_y(float time);
+extern float deltat1;
+extern float deltat2;
 
 void imu_setup();
 
-void check_imu_angle(float& delta_theta_left,
-                     float& delta_theta_right,
-                     float& total_theta_left,
-                     float& total_theta_right);
+void check_imu_angle(float& delta_theta_left, float& delta_theta_right);
