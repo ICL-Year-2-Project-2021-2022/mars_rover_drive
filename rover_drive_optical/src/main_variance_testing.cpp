@@ -54,7 +54,7 @@ void setup() {
     }
   }
 
-  delay(10000);
+  delay(15000);
 
   // led setup
   led_begin();

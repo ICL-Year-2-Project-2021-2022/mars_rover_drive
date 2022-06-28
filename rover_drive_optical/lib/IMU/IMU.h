@@ -8,7 +8,7 @@ extern SF fusion2;
 
 extern float gx, gy, gz, ax, ay, az, mx, my, mz, temp;
 extern float pitch, roll, yaw;
-extern float deltat;
+extern float imu_deltat, imu_deltat2;
 
 extern Adafruit_MPU6050 mpu1;
 extern Adafruit_MPU6050 mpu2;
@@ -27,5 +27,4 @@ void imu_setup();
 void check_imu_angle(float& theta_left,
                      float& theta_right,
                      float& total_theta_left_imu,
-                     float& total_theta_right_imu,
-                     float& deltat);
+                     float& total_theta_right_imu);

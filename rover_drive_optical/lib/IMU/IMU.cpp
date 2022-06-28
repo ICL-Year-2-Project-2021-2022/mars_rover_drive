@@ -17,18 +17,22 @@ float pitch, roll, yaw;
 float pitch2, roll2, yaw2;
 float current_yaw = 0.0;
 float current_yaw2 = 0.0;
-float deltat;
-float deltat2;
-float theta_left_1, theta_left_2, theta_left_3, theta_right_1, theta_right_2,
-    theta_right_3;
+float imu_deltat = 0.0;
+float imu_deltat2 = 0.0;
+float theta_left_prev = 0.0;
+float theta_right_prev = 0.0;
+float delta_theta_spike_threshold = 0.05;
+float deltat_spike_threshold = 0.05;
+float deltat_prev = 0.03;
+float deltat2_prev = 0.03;
 
 void imu_setup() {
-  mpu1.setAccelerometerRange(MPU6050_RANGE_4_G);
-  mpu1.setGyroRange(MPU6050_RANGE_500_DEG);
-  mpu1.setFilterBandwidth(MPU6050_BAND_94_HZ);
-  mpu2.setAccelerometerRange(MPU6050_RANGE_4_G);
-  mpu2.setGyroRange(MPU6050_RANGE_500_DEG);
-  mpu2.setFilterBandwidth(MPU6050_BAND_94_HZ);
+  mpu1.setAccelerometerRange(MPU6050_RANGE_2_G);
+  mpu1.setGyroRange(MPU6050_RANGE_250_DEG);
+  mpu1.setFilterBandwidth(MPU6050_BAND_5_HZ);
+  mpu2.setAccelerometerRange(MPU6050_RANGE_2_G);
+  mpu2.setGyroRange(MPU6050_RANGE_250_DEG);
+  mpu2.setFilterBandwidth(MPU6050_BAND_5_HZ);
 }
 
 /*// eliminate drift by zeroing at the beginning of pid loop
@@ -41,22 +45,37 @@ void reset_imu_angle() {
 void check_imu_angle(float& theta_left,
                      float& theta_right,
                      float& total_theta_left_imu,
-                     float& total_theta_right_imu,
-                     float& deltat) {
+                     float& total_theta_right_imu) {
   /* Get new sensor events with the readings */
   sensors_event_t a, g, temp;
   mpu1.getEvent(&a, &g, &temp);
   sensors_event_t a2, g2, temp2;
   mpu2.getEvent(&a2, &g2, &temp2);
 
-  deltat = fusion.deltatUpdate();
-  deltat2 = fusion2.deltatUpdate();
+  imu_deltat = fusion.deltatUpdate();
+  imu_deltat2 = fusion2.deltatUpdate();
+
+   Serial.println("Pre-if deltat is: "+String(imu_deltat)+", delta spike thresh: "+String(deltat_spike_threshold));
+  bool decision;
+  if (decision = (imu_deltat > deltat_spike_threshold)) {
+    imu_deltat = deltat_prev;
+    imu_deltat2 = deltat2_prev;
+    /*fusion.reset();
+    fusion2.reset();
+    current_yaw = 0.0;
+    current_yaw2 = 0.0;*/
+    Serial.println("Alert!! \n timespike!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! deltat is: "+String(imu_deltat)+", delta spike thresh: "+String(deltat_spike_threshold)+ String(decision));
+  } else {
+    deltat_prev = imu_deltat;
+    deltat2_prev = imu_deltat2;
+  }
+
   // fusion.MahonyUpdate(gx, gy, gz, ax, ay, az, mx, my, mz, deltat);  //mahony
   // is suggested if there isn't the mag
   fusion.MahonyUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
-                      a.acceleration.y, a.acceleration.z, deltat);
+                      a.acceleration.y, a.acceleration.z, imu_deltat);
   fusion2.MahonyUpdate(g2.gyro.x, g2.gyro.y, g2.gyro.z, a2.acceleration.x,
-                       a2.acceleration.y, a2.acceleration.z, deltat2);
+                       a2.acceleration.y, a2.acceleration.z, imu_deltat2);
 
   // fusion.MadgwickUpdate(g.gyro.x, g.gyro.y, g.gyro.z, a.acceleration.x,
   //                      a.acceleration.y, a.acceleration.z, deltat);
@@ -112,8 +131,20 @@ void check_imu_angle(float& theta_left,
   theta_left = ((yaw - current_yaw) + (yaw2 - current_yaw2)) / 2;
   theta_right = ((yaw - current_yaw) + (yaw2 - current_yaw2)) / 2;
 
-  // theta_left = theta_left_1;
-  // theta_right = theta_right_1;
+  if (abs(theta_left) > delta_theta_spike_threshold) {
+    theta_left = theta_left_prev;
+    theta_right = theta_right_prev;
+    /*fusion.reset();
+    fusion2.reset();
+    current_yaw = 0.0;
+    current_yaw2 = 0.0;*/
+    Serial.println(
+        "Alert!! "
+        "dataspike!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!delta_theta_left: "+String(theta_left)+", theta thresh"+String(delta_theta_spike_threshold));
+  } else {
+    theta_left_prev = theta_left;
+    theta_right_prev = theta_right;
+  }
 
   current_yaw = current_yaw + theta_left;
   current_yaw2 = current_yaw2 + theta_right;
@@ -130,9 +161,19 @@ void check_imu_angle(float& theta_left,
       total_theta_right = total_theta_right + theta_right;
       current_yaw2 = total_theta_right;
   }*/
-  Serial.println(String(deltat)+","+String(deltat2)+","+String(current_yaw) + "," + String(current_yaw2) + "," +
+  Serial.print(String(imu_deltat) + "," + String(imu_deltat2) + "," + String(yaw) +
+               "," + String(yaw2) + "," + String((yaw2 + yaw) / 2) + ",");
+  Serial.println(String(g.gyro.x) + "," + String(g.gyro.y) + "," +
+                 String(g.gyro.z) + "," + String(a.acceleration.x) + "," +
+                 String(a.acceleration.y) + "," + String(a.acceleration.z) +
+                 "," + String(g2.gyro.x) + "," + String(g2.gyro.y) + "," +
+                 String(g2.gyro.z) + "," + String(a2.acceleration.x) + "," +
+                 String(a2.acceleration.y) + "," + String(a2.acceleration.z));
+  /*Serial.println(String(imu_deltat) + "," + String(imu_deltat2) + "," +
+                 String(current_yaw) + "," + String(current_yaw2) + "," +
                  String(yaw) + "," + String(yaw2) + "," + String(theta_left) +
                  "," + String(theta_right));
+                 */
 }
 
 /*

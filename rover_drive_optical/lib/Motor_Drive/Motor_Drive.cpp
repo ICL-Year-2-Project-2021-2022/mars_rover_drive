@@ -60,30 +60,26 @@ int motor_profile(float preadj_speed) {
 
 // motor function (to remove need for CCW and CW -> -100 to 100)
 void motorrotate(int speed, int motor_no) {
-  
   if (motor_no == 1) {
-  if (abs(speed - last_speed_1) > step_size_motor) {
-    if (speed > last_speed_1){
-      speed = last_speed_1 + step_size_motor;
+    if (abs(speed - last_speed_1) > step_size_motor) {
+      if (speed > last_speed_1) {
+        speed = last_speed_1 + step_size_motor;
+      } else {
+        speed = last_speed_1 - step_size_motor;
+      }
     }
-    else {
-      speed = last_speed_1 - step_size_motor;
-    }
-  }
-  last_speed_1 = speed;
-  }
-  else {
+    last_speed_1 = speed;
+  } else {
     if (abs(speed - last_speed_2) > step_size_motor) {
-    if (speed > last_speed_2){
-      speed = last_speed_2 + step_size_motor;
+      if (speed > last_speed_2) {
+        speed = last_speed_2 + step_size_motor;
+      } else {
+        speed = last_speed_2 - step_size_motor;
+      }
     }
-    else {
-      speed = last_speed_2 - step_size_motor;
-    }
+    last_speed_2 = speed;
   }
-  last_speed_2 = speed;
-  }
-  
+
   if (speed > 0) {
     robot.rotate(motor_no, motor_profile(speed), CCW);
   } else {
@@ -93,7 +89,7 @@ void motorrotate(int speed, int motor_no) {
 
 void motorramptozero() {
   while (last_speed_1 != 0 || last_speed_2 != 0) {
-    motorrotate(0,1);
-    motorrotate(0,2);
+    motorrotate(0, 1);
+    motorrotate(0, 2);
   }
 }

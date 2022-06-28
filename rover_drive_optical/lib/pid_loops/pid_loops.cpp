@@ -23,8 +23,8 @@ float theta_pid_loop(float theta_error,
                      float integral_theta_error) {
   float theta_derivative = theta_error - prev_theta_error;
   float kp_theta = 40;  // change
+    float ki_theta = 0.0;
   float kd_theta = 9;
-  float ki_theta = 0.0;
   float theta_pid = kp_theta * theta_error + kd_theta * theta_derivative +
                     ki_theta * integral_theta_error;
   return theta_pid;
@@ -61,7 +61,7 @@ void rover_straight(float dist_reqd) {
     // float deltat = 0;
     check_cumulative_dist();
     /*check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
-                    total_theta_right, deltat);*/
+                    total_theta_right);*/
     // timeCounterStraightLoop += deltat;
 
     float prev_dist_error = current_dist_error;
@@ -162,7 +162,7 @@ void rover_rotate(float theta_reqd) {
     check_cumulative_dist();
     // Serial.println(String(delta_theta_left)+","+String(delta_theta_right));
     check_imu_angle(delta_theta_left, delta_theta_right, total_theta_left,
-                    total_theta_right, deltat);
+                    total_theta_right);
 
     // Serial.println(String(delta_theta_left)+","+String(delta_theta_right));
 
@@ -170,7 +170,7 @@ void rover_rotate(float theta_reqd) {
     current_theta_error =
         current_theta_error - (delta_theta_left + delta_theta_right) / 2;
 
-    //Serial.println("Current theta error"+String(current_theta_error));
+    // Serial.println("Current theta error"+String(current_theta_error));
     current_integral_theta_error =
         current_integral_theta_error + current_theta_error;
 
@@ -209,7 +209,8 @@ void rover_rotate(float theta_reqd) {
     //                + String(max_theta_error) + " delta_theta_left: " +
     //                String(delta_theta_left) +
     //               "; delta_theta_right: " + String(delta_theta_right));
-    //Serial.println("Left motor" + String(leftmotorcontrol) + ", Right motor" +
+    // Serial.println("Left motor" + String(leftmotorcontrol) + ", Right motor"
+    // +
     //               String(rightmotorcontrol));
 
     /*if ((millis() - last_print) > 1000) {
